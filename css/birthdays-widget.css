@@ -10,6 +10,7 @@
     color: red; 
     font-weight: bold;
     line-height: 1.5;
+    font-size: larger;
 }
 
 .birthday_element {
@@ -89,6 +90,13 @@ ul.birthday_list > li {
 .birthday_center{
     text-align: center;
     margin: 3% 0 0 0;
+}
+
+.birthday_date {
+    text-align: center;
+    border-bottom: 1px dashed grey;
+    margin: 5% 25% 2% 25%;
+    font-size: larger;
 }
 
 .birthday_admin_image {

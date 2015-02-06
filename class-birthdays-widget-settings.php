@@ -79,6 +79,15 @@
                     } else {
                         $birthdays_settings[ 'user_age' ] = 0;
                     }
+                    if ( isset( $_POST[ 'birthdays_days_upcoming' ] ) ) {
+                        if ( !is_numeric( $_POST[ 'birthdays_days_upcoming' ] ) ) {
+                            $birthdays_settings[ 'days_upcoming' ] = 1;
+                        } else {
+                            $birthdays_settings[ 'days_upcoming' ] = $_POST[ 'birthdays_days_upcoming' ];
+                        }
+                    } else {
+                        $birthdays_settings[ 'days_upcoming' ] = 1;
+                    }
                     if ( isset( $_POST[ 'birthdays_date_meta_field' ] ) ) {
                         $birthdays_settings[ 'date_meta_field' ] = $_POST[ 'birthdays_date_meta_field' ];
                     } else {
@@ -248,6 +257,19 @@
                                             <option value='0' <?php if ( $birthdays_settings[ 'user_age' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No' , 'birthdays-widget' ); ?></option>
                                         </select>
                                         <br /><?php _e( 'Select if you want age of Users to be displayed', 'birthdays-widget' ); ?>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Days forward in upcoming view', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Days forward in upcoming view', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="birthdays_days_upcoming">
+                                        <input name="birthdays_days_upcoming" id="birthdays_days_upcoming" type="number" 
+                                            value="<?php echo ( $birthdays_settings[ 'days_upcoming' ] ); ?>" />
+                                        <br /><?php _e( 'Select number of days displayed in upcoming view', 'birthdays-widget' ); ?>
                                     </label>
                                 </fieldset>
                             </td>
@@ -598,6 +620,7 @@
                         } else {
                             if ( !isset( $_POST[ 'birthday_image' ] ) )
                                 $_POST[ 'birthday_image' ] = '';
+                            var_dump( $_POST );
                             $update_query = "UPDATE $table_name SET name = '%s', date = '%s', email = '%s', image = '%s' WHERE id = '%d' LIMIT 1;";
                             $query = $wpdb->prepare( $update_query, $_POST[ 'birthday_name' ], date( 'Y-m-d' , strtotime( $_POST[ 'birthday_date' ] ) ), $_POST[ 'birthday_email' ], $_POST[ 'birthday_image' ], $_GET[ 'id' ] );
                             if ( $wpdb->query( $query ) == 1 ) {
@@ -732,7 +755,7 @@
                             $tmp2 = $tmp . 'value="' . $result->email . '"';
                             $name_input = "<input type=\"text\" name=\"birthday_name\" $tmp1 id=\"birthday_name\"  />" . $name_hidden;
                             $date_input = "<input type=\"text\" name=\"birthday_date\" id=\"birthday_date\" value=\"" . 
-                                            date_i18n( get_option( 'date_format' ), strtotime( $result->date ) ) . "\" />";
+                                            date_i18n( 'd-m-Y', strtotime( $result->date ) ) . "\" />";
                             $email_input = "<input type=\"email\" name=\"birthday_email\" $tmp2 />" . $email_hidden;
                             if ( $birthdays_settings[ 'wp_user_gravatar' ] && $wp_usr !== false ) {
                                 $image_input = "<input type=\"text\" name=\"birthday_image\" value=\"Gravatar\" disabled=\"disabled\" />";
@@ -744,7 +767,7 @@
                                     $img = $birthdays_settings[ 'user_image_url' ];
                                 }                                
                                 $image_input = '<img id="birthdays_user_image_preview" class="birthday_admin_edit_image" src="' . $img . '" alt="User Image" />'.
-                                    '<input name="image" type="button" class="button-primary upload_image_button" value="' . __( 'Add', 'birthdays-widget' ) . '" data-url-input="birthdays_user_image" >'.
+                                    '<input name="image" type="button" class="button-primary upload_image_button" value="' . __( '+', 'birthdays-widget' ) . '" data-url-input="birthdays_user_image" >'.
                                     '<input type="hidden" name="birthday_image" id="birthdays_user_image" class="upload_image_button bw-image" value="' . $result->image . '" />';
                             }
                         } else {
@@ -752,7 +775,7 @@
                             $date_input = '<input type="text" name="birthday_date" id="birthday_date" value="" />';
                             $email_input = '<input type="email" name="birthday_email" value="" />';
                             $image_input = '<img id="birthdays_user_image_preview" class="birthday_admin_edit_image" src="' . $birthdays_settings[ 'user_image_url' ] . '" alt="User Image" />'.
-                                           '<input name="image" type="button" class="button-primary upload_image_button" value="' . __( 'Add', 'birthdays-widget' ) . '" data-url-input="birthdays_user_image" >'.
+                                           '<input name="image" type="button" class="button-primary upload_image_button" value="' . __( '+', 'birthdays-widget' ) . '" data-url-input="birthdays_user_image" >'.
                                            '<input type="hidden" id="birthdays_user_image" name="birthday_image" class="upload_image_button bw-image" value="" />';
                         } ?>
                             <td>
