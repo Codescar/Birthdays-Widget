@@ -8,10 +8,10 @@
         }
     
         public function add_plugin_page() {
-            add_menu_page( 'Birthdays Widget', 'Birthdays', 'read', 'birthdays-widget', array( &$this, 'create_plugin_page' ) );
-            add_submenu_page( 'birthdays-widget', 'Options', 'Options', 'read', 'birthdays-widget-options', array( &$this, 'create_options_page' ) );
-            add_submenu_page( 'birthdays-widget', 'Import', 'Import', 'read', 'birthdays-widget-import', array( &$this, 'create_submenu_page_import' ) );
-            add_submenu_page( 'birthdays-widget', 'Export', 'Export', 'read', 'birthdays-widget-export', array( &$this, 'create_submenu_page_export' ) );
+            add_menu_page( 'Birthdays Widget', __( 'Birthdays', 'birthdays-widget' ), 'read', 'birthdays-widget', array( &$this, 'create_plugin_page' ) );
+            add_submenu_page( 'birthdays-widget', __( 'Options', 'birthdays-widget' ), __( 'Options', 'birthdays-widget' ), 'read', 'birthdays-widget-options', array( &$this, 'create_options_page' ) );
+            add_submenu_page( 'birthdays-widget', __( 'Import', 'birthdays-widget' ), __( 'Import', 'birthdays-widget' ), 'read', 'birthdays-widget-import', array( &$this, 'create_submenu_page_import' ) );
+            add_submenu_page( 'birthdays-widget', __( 'Export', 'birthdays-widget' ), __( 'Export', 'birthdays-widget' ), 'read', 'birthdays-widget-export', array( &$this, 'create_submenu_page_export' ) );
         }
     
         public function sanitize( $input ) {
@@ -78,6 +78,11 @@
                         $birthdays_settings[ 'user_age' ] = 1;
                     } else {
                         $birthdays_settings[ 'user_age' ] = 0;
+                    }
+                    if ( isset( $_POST[ 'upcoming_mode' ] ) && $_POST[ 'upcoming_mode' ] != '0' ) {
+                        $birthdays_settings[ 'upcoming_mode' ] = 1;
+                    } else {
+                        $birthdays_settings[ 'upcoming_mode' ] = 0;
                     }
                     if ( isset( $_POST[ 'upcoming_days_birthdays' ] ) ) {
                         if ( !is_numeric( $_POST[ 'upcoming_days_birthdays' ] ) ) {
@@ -204,8 +209,9 @@
                 <a href="#birthdays-tab-image" class="nav-tab"><?php _e( 'Image Settings', 'birthdays-widget' ); ?></a>
                 <a href="#birthdays-tab-access" class="nav-tab"><?php _e( 'Access', 'birthdays-widget' ); ?></a>
                 <a href="#birthdays-tab-calendar" class="nav-tab"><?php _e( 'Calendar', 'birthdays-widget' ); ?></a>
+                <a href="#birthdays-tab-upcoming" class="nav-tab"><?php _e( 'Upcoming', 'birthdays-widget' ); ?></a>
             </h2>
-            <form name="birthdays_form" method="post" action="">
+            <form id="birthdays_settings_form" name="birthdays_form" method="post" action="">
                 <div class="table" id="birthdays-tab-general">
                     <table class="form-table">
                         <tbody>
@@ -266,41 +272,6 @@
                                             <option value='0' <?php if ( $birthdays_settings[ 'user_age' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No' , 'birthdays-widget' ); ?></option>
                                         </select>
                                         <br /><?php _e( 'Select if you want age of Users to be displayed', 'birthdays-widget' ); ?>
-                                    </label>
-                                </fieldset>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?php _e( 'Upcoming View', 'birthdays-widget' ); ?></th>
-                            <td>
-                                <fieldset>
-                                    <legend class="screen-reader-text"><span><?php _e( 'Upcoming View', 'birthdays-widget' ); ?></span></legend>
-                                    <span class="description"><?php _e( 'The plugin will display the minimum days of the below choices', 'birthdays-widget' ); ?></span>
-                                </fieldset>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?php _e( 'Days with birthdays', 'birthdays-widget' ); ?></th>
-                            <td>
-                                <fieldset>
-                                    <legend class="screen-reader-text"><span><?php _e( 'Days with birthdays', 'birthdays-widget' ); ?></span></legend>
-                                    <label for="upcoming_days_birthdays">
-                                        <input name="upcoming_days_birthdays" id="upcoming_days_birthdays" type="number" 
-                                            value="<?php echo ( $birthdays_settings[ 'upcoming_days_birthdays' ] ); ?>" />
-                                        <br /><?php _e( 'Select number of days with birthdays displayed in upcoming view', 'birthdays-widget' ); ?>
-                                    </label>
-                                </fieldset>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?php _e( 'Consecutive days', 'birthdays-widget' ); ?></th>
-                            <td>
-                                <fieldset>
-                                    <legend class="screen-reader-text"><span><?php _e( 'Consecutive days', 'birthdays-widget' ); ?></span></legend>
-                                    <label for="upcoming_consecutive_days">
-                                        <input name="upcoming_consecutive_days" id="upcoming_consecutive_days" type="number" 
-                                            value="<?php echo ( $birthdays_settings[ 'upcoming_consecutive_days' ] ); ?>" />
-                                        <br /><?php _e( 'Select number of consecutive days displayed in upcoming view', 'birthdays-widget' ); ?>
                                     </label>
                                 </fieldset>
                             </td>
@@ -543,6 +514,58 @@
                         </tbody>
                     </table>
                 </div>
+
+                <div class="table ui-tabs-hide" id="birthdays-tab-upcoming">
+                    <table class="form-table">
+                        <tbody>
+                        <tr>
+                            <th><?php _e( 'Mode', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Mode', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="upcoming_mode">
+                                        <select name="upcoming_mode" id="upcoming_mode">
+                                            <option value='1' <?php if ( $birthdays_settings[ 'upcoming_mode' ] == 1 ) echo "selected='selected'"; ?> ><?php _e( 'Consecutive days' , 'birthdays-widget' ); ?></option>
+                                            <option value='0' <?php if ( $birthdays_settings[ 'upcoming_mode' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'Days with birthdays' , 'birthdays-widget' ); ?></option>
+                                        </select>
+                                        <br /><?php _e( 'Select if you want the plugin to display # consecutive days from the current day or search for days with birthdays.', 'birthdays-widget' ); ?>
+                                        <br /><span class="description">
+                                            <?php _e( 'Ex: Consecutive days would be 1rst February, 2nd February, 3rd February ... etc', 'birthdays-widget' ); ?><br />
+                                            <?php _e( 'Days with birthdays could be 1rst February, 3rd March, 15th March ... etc, based on the birthdays in your list', 'birthdays-widget' ); ?>
+                                        </span>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Days with birthdays', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Days with birthdays', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="upcoming_days_birthdays">
+                                        <input name="upcoming_days_birthdays" id="upcoming_days_birthdays" type="number" 
+                                            value="<?php echo ( $birthdays_settings[ 'upcoming_days_birthdays' ] ); ?>" />
+                                        <br /><?php _e( 'Select number of days with birthdays displayed in upcoming view', 'birthdays-widget' ); ?>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Consecutive days', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Consecutive days', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="upcoming_consecutive_days">
+                                        <input name="upcoming_consecutive_days" id="upcoming_consecutive_days" type="number" 
+                                            value="<?php echo ( $birthdays_settings[ 'upcoming_consecutive_days' ] ); ?>" />
+                                        <br /><?php _e( 'Select number of consecutive days displayed in upcoming view', 'birthdays-widget' ); ?>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
                 <p><input name="save" type="submit" class="button-primary" value="<?php _e( 'Save', 'birthdays-widget' ); ?>" /></p>
                 <?php wp_nonce_field( 'birthdays_form' ); ?>
             </form>               
@@ -651,7 +674,6 @@
                         } else {
                             if ( !isset( $_POST[ 'birthday_image' ] ) )
                                 $_POST[ 'birthday_image' ] = '';
-                            var_dump( $_POST );
                             $update_query = "UPDATE $table_name SET name = '%s', date = '%s', email = '%s', image = '%s' WHERE id = '%d' LIMIT 1;";
                             $query = $wpdb->prepare( $update_query, $_POST[ 'birthday_name' ], date( 'Y-m-d' , strtotime( $_POST[ 'birthday_date' ] ) ), $_POST[ 'birthday_email' ], $_POST[ 'birthday_image' ], $_GET[ 'id' ] );
                             if ( $wpdb->query( $query ) == 1 ) {

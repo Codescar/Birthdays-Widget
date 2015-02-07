@@ -74,10 +74,10 @@ class Birthdays_Widget extends WP_Widget {
                 <span><?php _e( 'Template', 'birthdays-widget' ); ?></span>
                 <select id="<?php echo $this->get_field_id( 'template' ); ?>" 
                         name="<?php echo $this->get_field_name( 'template' ); ?>">
-                    <option value="0" <?php if ( $instance[ 'template' ] == 0 ) echo "selected='selected'"; ?>>Default</option>
-                    <option value="1" <?php if ( $instance[ 'template' ] == 1 ) echo "selected='selected'"; ?>>List</option>
-                    <option value="2" <?php if ( $instance[ 'template' ] == 2 ) echo "selected='selected'"; ?>>Calendar</option>
-                    <option value="3" <?php if ( $instance[ 'template' ] == 3 ) echo "selected='selected'"; ?>>Upcoming</option>
+                    <option value="0" <?php if ( $instance[ 'template' ] == 0 ) echo "selected='selected'"; ?>><?php _e( 'Default', 'birthdays-widget' ); ?></option>
+                    <option value="1" <?php if ( $instance[ 'template' ] == 1 ) echo "selected='selected'"; ?>><?php _e( 'List', 'birthdays-widget' ); ?></option>
+                    <option value="2" <?php if ( $instance[ 'template' ] == 2 ) echo "selected='selected'"; ?>><?php _e( 'Calendar', 'birthdays-widget' ); ?></option>
+                    <option value="3" <?php if ( $instance[ 'template' ] == 3 ) echo "selected='selected'"; ?>><?php _e( 'Upcoming', 'birthdays-widget' ); ?></option>
                 </select>
             </label>
         </fieldset></p>
@@ -306,6 +306,7 @@ class Birthdays_Widget extends WP_Widget {
                     //var_dump( $today_key );
                     $upcoming_days = $birthdays_settings[ 'upcoming_days_birthdays' ];
                     $consecutive_days = $birthdays_settings[ 'upcoming_consecutive_days' ];
+                    $upcoming_mode = $birthdays_settings[ 'upcoming_mode' ];
                     /* If today is not in the array, add the key and sort the array again */
                     if ( ! array_key_exists( $today_key, $days_organized ) ) {
                         $days_organized[ $today_key ] = array();
@@ -318,7 +319,7 @@ class Birthdays_Widget extends WP_Widget {
                     }
                     /* Now show the number of days user desires */
                     $final_days = array();
-                    if ( $consecutive_days < $upcoming_days ) {
+                    if ( $upcoming_mode ) {
                         $today = DateTime::createFromFormat( 'm-d', $today_key );
                         for ( $i = 0; $i < $consecutive_days; $i++ ) {
                             $today->add( new DateInterval( 'P1D' ) );
@@ -343,7 +344,7 @@ class Birthdays_Widget extends WP_Widget {
                             continue;
                         //var_dump( $day[ 0 ]->date );
                         $timestamp_date = strtotime( $day[ 0 ]->date );
-                        $html_date = date( 'jS F', $timestamp_date );
+                        $html_date = date_i18n( 'j F', $timestamp_date );
                         $html .= '<div class="birthday_date" >' . $html_date . '</div>';
                         $flag = false;
                         foreach ( $day as $row ) {

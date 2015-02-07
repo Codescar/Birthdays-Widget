@@ -34,6 +34,7 @@
                 'user_image_url' => plugins_url( '/images/default_user.png' , __FILE__ ),
                 'user_image_enabled' => '1',
                 'user_age' => '0',
+                'upcoming_mode' => '0',
                 'upcoming_days_birthdays' => '3',
                 'upcoming_consecutive_days' => '3',
                 'wish' => __( 'Happy Birthday', 'birthdays-widget' ),
