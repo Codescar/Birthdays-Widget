@@ -79,14 +79,23 @@
                     } else {
                         $birthdays_settings[ 'user_age' ] = 0;
                     }
-                    if ( isset( $_POST[ 'birthdays_days_upcoming' ] ) ) {
-                        if ( !is_numeric( $_POST[ 'birthdays_days_upcoming' ] ) ) {
-                            $birthdays_settings[ 'days_upcoming' ] = 1;
+                    if ( isset( $_POST[ 'upcoming_days_birthdays' ] ) ) {
+                        if ( !is_numeric( $_POST[ 'upcoming_days_birthdays' ] ) ) {
+                            $birthdays_settings[ 'upcoming_days_birthdays' ] = 3;
                         } else {
-                            $birthdays_settings[ 'days_upcoming' ] = $_POST[ 'birthdays_days_upcoming' ];
+                            $birthdays_settings[ 'upcoming_days_birthdays' ] = $_POST[ 'upcoming_days_birthdays' ];
                         }
                     } else {
-                        $birthdays_settings[ 'days_upcoming' ] = 1;
+                        $birthdays_settings[ 'upcoming_days_birthdays' ] = 3;
+                    }
+                    if ( isset( $_POST[ 'upcoming_consecutive_days' ] ) ) {
+                        if ( !is_numeric( $_POST[ 'upcoming_consecutive_days' ] ) ) {
+                            $birthdays_settings[ 'upcoming_consecutive_days' ] = 3;
+                        } else {
+                            $birthdays_settings[ 'upcoming_consecutive_days' ] = $_POST[ 'upcoming_consecutive_days' ];
+                        }
+                    } else {
+                        $birthdays_settings[ 'upcoming_consecutive_days' ] = 3;
                     }
                     if ( isset( $_POST[ 'birthdays_date_meta_field' ] ) ) {
                         $birthdays_settings[ 'date_meta_field' ] = $_POST[ 'birthdays_date_meta_field' ];
@@ -262,14 +271,36 @@
                             </td>
                         </tr>
                         <tr>
-                            <th><?php _e( 'Days forward in upcoming view', 'birthdays-widget' ); ?></th>
+                            <th><?php _e( 'Upcoming View', 'birthdays-widget' ); ?></th>
                             <td>
                                 <fieldset>
-                                    <legend class="screen-reader-text"><span><?php _e( 'Days forward in upcoming view', 'birthdays-widget' ); ?></span></legend>
-                                    <label for="birthdays_days_upcoming">
-                                        <input name="birthdays_days_upcoming" id="birthdays_days_upcoming" type="number" 
-                                            value="<?php echo ( $birthdays_settings[ 'days_upcoming' ] ); ?>" />
-                                        <br /><?php _e( 'Select number of days displayed in upcoming view', 'birthdays-widget' ); ?>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Upcoming View', 'birthdays-widget' ); ?></span></legend>
+                                    <span class="description"><?php _e( 'The plugin will display the minimum days of the below choices', 'birthdays-widget' ); ?></span>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Days with birthdays', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Days with birthdays', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="upcoming_days_birthdays">
+                                        <input name="upcoming_days_birthdays" id="upcoming_days_birthdays" type="number" 
+                                            value="<?php echo ( $birthdays_settings[ 'upcoming_days_birthdays' ] ); ?>" />
+                                        <br /><?php _e( 'Select number of days with birthdays displayed in upcoming view', 'birthdays-widget' ); ?>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Consecutive days', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Consecutive days', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="upcoming_consecutive_days">
+                                        <input name="upcoming_consecutive_days" id="upcoming_consecutive_days" type="number" 
+                                            value="<?php echo ( $birthdays_settings[ 'upcoming_consecutive_days' ] ); ?>" />
+                                        <br /><?php _e( 'Select number of consecutive days displayed in upcoming view', 'birthdays-widget' ); ?>
                                     </label>
                                 </fieldset>
                             </td>

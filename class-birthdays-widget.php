@@ -303,17 +303,22 @@ class Birthdays_Widget extends WP_Widget {
                     $days_organized = self::organize_days( $filtered );
                     //TODO get current day in format MM-DD
                     $tmp = date( 'm-d' );
-                    //TODO get birthdays options, days to be displayed
-                    $days = 10;
-                    if ( array_key_exists( $tmp, $days_organized ) ) {
-                        $offset = array_search( $tmp, array_keys( $days_organized ) );
-                        for ( $i = 0; $i < $offset; $i++ ) {
-                            next( $days_organized );
-                        }
-                        //var_dump( current( $days_organized ) );
+
+                    $upcoming_days = $birthdays_settings[ 'upcoming_days_birthdays' ];
+                    $consecutive_days = $birthdays_settings[ 'upcoming_consecutive_days' ];
+                    /* If today is not in the array, add the key and sort the array again */
+                    if ( ! array_key_exists( $tmp, $days_organized ) ) {
+                        $days_organized[ $tmp ] = array();
+                        ksort( $days_organized );
                     }
+                    /* Find the current day in the array, then iterate to it */
+                    $offset = array_search( $tmp, array_keys( $days_organized ) );
+                    for ( $i = 0; $i < $offset; $i++ ) {
+                        next( $days_organized );
+                    }
+                    /* Now show the number of days user desires */
                     $final_days = array();
-                    for ( $i = 0; $i < $days; $i++ ) {
+                    for ( $i = 0; $i < $upcoming_days; $i++ ) {
                         $final_days[] = current( $days_organized );
                         next( $days_organized );
                     }
