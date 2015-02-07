@@ -302,27 +302,42 @@ class Birthdays_Widget extends WP_Widget {
                     wp_enqueue_style ( 'jquery-style' );
                     $days_organized = self::organize_days( $filtered );
                     //TODO get current day in format MM-DD
-                    $tmp = date( 'm-d' );
-
+                    $today_key = date( 'm-d' );
+                    //var_dump( $today_key );
                     $upcoming_days = $birthdays_settings[ 'upcoming_days_birthdays' ];
                     $consecutive_days = $birthdays_settings[ 'upcoming_consecutive_days' ];
                     /* If today is not in the array, add the key and sort the array again */
-                    if ( ! array_key_exists( $tmp, $days_organized ) ) {
-                        $days_organized[ $tmp ] = array();
+                    if ( ! array_key_exists( $today_key, $days_organized ) ) {
+                        $days_organized[ $today_key ] = array();
                         ksort( $days_organized );
                     }
                     /* Find the current day in the array, then iterate to it */
-                    $offset = array_search( $tmp, array_keys( $days_organized ) );
+                    $offset = array_search( $today_key, array_keys( $days_organized ) );
                     for ( $i = 0; $i < $offset; $i++ ) {
                         next( $days_organized );
                     }
                     /* Now show the number of days user desires */
                     $final_days = array();
+                    if ( $consecutive_days < $upcoming_days ) {
+                        $today = DateTime::createFromFormat( 'm-d', $today_key );
+                        for ( $i = 0; $i < $consecutive_days; $i++ ) {
+                            $today->add( new DateInterval( 'P1D' ) );
+                            $tmp_day = $today->format( 'm-d' );
+                            if ( ! array_key_exists( $tmp_day, $days_organized ) ) {
+                                $days_organized[ $tmp_day ] = array();
+                            }
+                        }
+                        ksort( $days_organized );
+                        $offset = array_search( $today_key, array_keys( $days_organized ) );
+                        for ( $i = 0; $i < $offset; $i++ ) {
+                            next( $days_organized );
+                        }
+                        $upcoming_days = $consecutive_days;
+                    }
                     for ( $i = 0; $i < $upcoming_days; $i++ ) {
                         $final_days[] = current( $days_organized );
                         next( $days_organized );
                     }
-                    //var_dump( $final_days );
                     foreach ( $final_days as $day ) {
                         if ( !$day )
                             continue;
