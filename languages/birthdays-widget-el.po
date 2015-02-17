@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WordPress Related Translations\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-02-03 19:09+0000\n"
-"PO-Revision-Date: 2015-02-07 19:26+0000\n"
+"PO-Revision-Date: 2015-02-17 05:22+0000\n"
 "Last-Translator: Yury Kherimyan\n"
 "Language-Team: Sudavar\n"
 "Language: Greek\n"
@@ -272,6 +272,10 @@ msgstr "Πεδία στην Φόρμα Εγγραφής Χρήστη"
 #: birthday-widget.php:93 loco:54d11fa214d725d25b8b458f
 msgid "First Name"
 msgstr "Όνομα"
+
+#: class-birthdays-widget-settings.php:207 loco:54d11dcc14d725da568b456e
+msgid "General settings"
+msgstr "Γενικές ρυθμίσεις"
 
 #: class-birthdays-widget-settings.php:336
 #: class-birthdays-widget-settings.php:339 loco:54d11fa214d725d25b8b4590
