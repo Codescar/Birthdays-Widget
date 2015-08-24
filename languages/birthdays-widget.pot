@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WordPress Related Translations\n"
 "Report-Msgid-Bugs-To: Yury Kherimyan\n"
-"POT-Creation-Date: 2015-02-17 05:23+0000\n"
+"POT-Creation-Date: 2015-02-07 19:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -261,10 +261,6 @@ msgstr ""
 
 #: birthday-widget.php:93 loco:54d11fa214d725d25b8b458f
 msgid "First Name"
-msgstr ""
-
-#: class-birthdays-widget-settings.php:207 loco:54d11dcc14d725da568b456e
-msgid "General settings"
 msgstr ""
 
 #: class-birthdays-widget-settings.php:336

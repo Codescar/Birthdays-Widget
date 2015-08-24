@@ -3,14 +3,14 @@ Plugin Name: Birthdays Widget
 Plugin URI: http://wordpress.org/plugins/birthdays-widget/
 Description: Birthdays widget plugin produces a widget which displays a customizable happy birthday image and wish to your clients/users.
 Author: lion2486, Sudavar
-Version: 1.7.1
+Version: 1.7.2
 Author URI: http://www.codescar.eu 
 Contributors: lion2486, Sudavar
 Donate link: https://www.paypal.com/gr/cgi-bin/webscr?cmd=_flow&SESSION=Rxb14ltcz8y8NfgafCdykAi4liOMv6F4qTihJEStzyBstHV2Eube-Yz49g4&dispatch=5885d80a13c0db1f8e263663d3faee8d66f31424b43e9a70645c907a6cbd8fb4
 Tags: widget, birthdays, custom birthday list, WordPress User birthday, birthday calendar
 Requires at least: 3.0.1
 Tested up to: 4.0
-Stable tag: 1.7.1
+Stable tag: 1.7.2
 Text Domain: birthdays-widget
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -50,6 +50,11 @@ This section describes how to install the plugin and get it working.
 3. Options Page
 
 == Changelog ==
+
+= 1.7.2 =
+* Tested up to WordPress 4.3 version
+* Option to disable Tooltip and Birthday Wish
+* Minor bug fixes
 
 = 1.7.1 =
 * Bug fix for the WP User drawing date wrongly from Custom Meta Field

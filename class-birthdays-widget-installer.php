@@ -38,6 +38,8 @@
                 'upcoming_days_birthdays' => '3',
                 'upcoming_consecutive_days' => '3',
                 'wish' => __( 'Happy Birthday', 'birthdays-widget' ),
+                'wish_disabled' => 0,
+                'tooltip' => 1,
                 'color_current_day' => '#FF8000',
                 'color_one' => '#2277cc',
                 'second_color' => '0',

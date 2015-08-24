@@ -59,20 +59,20 @@
                 $birthdays_settings = maybe_unserialize( $birthdays_settings );
                 if ( isset( $_POST[ 'birthdays_save' ] ) && check_admin_referer( 'birthdays_form' ) ) {
                     $birthdays_settings[ 'roles' ] = $_POST[ 'roles'];
-                    $tmp_users = get_users();
-                    foreach ( $tmp_users as $tmp_user ) {
-                        $tmp_user->remove_cap( 'birthdays_options' );
-                    }
-                    if ( isset( $_POST[ 'birthdays_access_users'] ) ) {
-                        foreach ( $_POST[ 'birthdays_access_users' ] as $user_id ) {
-                            $tmp_user = new WP_User( $user_id );
-                            $tmp_user->add_cap( 'birthdays_options' );
-                        }
-                    }
                     if ( isset( $_POST[ 'birthdays_register_form' ] ) && $_POST[ 'birthdays_register_form' ] != '0' ) {
                         $birthdays_settings[ 'register_form' ] = 1;
                     } else {
                         $birthdays_settings[ 'register_form' ] = 0;
+                    }
+                    if ( isset( $_POST[ 'birthdays_wish_disabled' ] ) && $_POST[ 'birthdays_wish_disabled' ] != '0' ) {
+                        $birthdays_settings[ 'wish_disabled' ] = 1;
+                    } else {
+                        $birthdays_settings[ 'wish_disabled' ] = 0;
+                    }
+                    if ( isset( $_POST[ 'birthdays_tooltip' ] ) && $_POST[ 'birthdays_tooltip' ] != '0' ) {
+                        $birthdays_settings[ 'tooltip' ] = 1;
+                    } else {
+                        $birthdays_settings[ 'tooltip' ] = 0;
                     }
                     if ( isset( $_POST[ 'birthdays_meta_field' ] ) ) {
                         $birthdays_settings[ 'meta_field' ] = wp_strip_all_tags( $_POST[ 'birthdays_meta_field' ] );
@@ -204,11 +204,7 @@
                         <p><strong><?php _e( 'Options successfully updated.', 'birthdays-widget' ); ?></strong></p>
                     </div><?php
                 }
-                if ( $birthdays_settings[ 'roles' ] ) {
-                    $current_roles = $birthdays_settings[ 'roles' ];
-                } else {
-                    $current_roles = array();
-                }
+                $current_roles = $birthdays_settings[ 'roles' ];
                 $sup_roles = get_editable_roles();
                 $supported_roles = array();
                 foreach ( $sup_roles as $role ) {
@@ -237,6 +233,21 @@
                                     <label for="birthdays_wish">
                                         <input type="text" size="35" name="birthdays_wish" value="<?php echo $birthdays_settings[ 'wish' ]; ?>" />
                                         <br /><?php _e( 'Write your custom "wish"', 'birthdays-widget' ); ?>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Birthday "wish" disabled', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Birthday "wish" disabled', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="birthdays_wish_disabled">
+                                        <select name="birthdays_wish_disabled" id="birthdays_wish_disabled">
+                                            <option value='1' <?php if ( $birthdays_settings[ 'wish_disabled' ] == 1 ) echo "selected='selected'"; ?> ><?php _e( 'Yes' , 'birthdays-widget' ); ?></option>
+                                            <option value='0' <?php if ( $birthdays_settings[ 'wish_disabled' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No' , 'birthdays-widget' ); ?></option>
+                                        </select>
+                                        <br /><?php _e( 'Don\' show birthday wish', 'birthdays-widget' ); ?>
                                     </label>
                                 </fieldset>
                             </td>
@@ -286,6 +297,21 @@
                                             <option value='0' <?php if ( $birthdays_settings[ 'user_age' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No' , 'birthdays-widget' ); ?></option>
                                         </select>
                                         <br /><?php _e( 'Select if you want age of Users to be displayed', 'birthdays-widget' ); ?>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Tooltip', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Tooltip', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="birthdays_tooltip">
+                                        <select name="birthdays_tooltip" id="birthdays_tooltip">
+                                            <option value='1' <?php if ( $birthdays_settings[ 'tooltip' ] == 1 ) echo "selected='selected'"; ?> ><?php _e( 'Yes' , 'birthdays-widget' ); ?></option>
+                                            <option value='0' <?php if ( $birthdays_settings[ 'tooltip' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No' , 'birthdays-widget' ); ?></option>
+                                        </select>
+                                        <br /><?php _e( 'Select if you want a nice tooltip to appear when you hover on current day or name', 'birthdays-widget' ); ?>
                                     </label>
                                 </fieldset>
                             </td>
@@ -462,20 +488,6 @@
                         <?php echo $role.'<br />';
                     endforeach; ?>
                     <input type="hidden" name="birthdays_save" value="1" />
-                    <p><?php _e( 'Here you can select the users of your website who will have access to page editing/viewing the birthday list.', 'birthdays-widget' ); ?></p>
-                    <?php 
-                        $users = get_users();
-                        foreach ( $users as $user ) {
-                            if ( $user->has_cap( 'birthdays_options' ) ) {
-                                $flag = true;
-                            } else {
-                                $flag = false;
-                            } ?>
-                            <input type="checkbox" name="birthdays_access_users[]" value="<?php echo $user->ID; ?>" 
-                                <?php if ( $flag ) echo 'checked="checked"'; ?> />
-                            <?php echo ucfirst( $user->user_nicename ); ?><br /><?php
-                        }
-                    ?>
                 </div>
                 
                 <div class="table ui-tabs-hide" id="birthdays-tab-calendar">
@@ -599,7 +611,7 @@
             </form>               
             <hr />
             <p>
-                <span class="description alignright"><?php echo __( 'Plugin Version ', 'birthdays-widget' ) . ' ' . BW; ?></span>
+                <span class="description alignright"><?php echo __( 'Plugin Version ', 'birthdays-widget' ) . BW; ?></span>
                 <?php _e( '<b>Shortcode</b> is also available for use in posts or pages: ', 'birthdays-widget' ); ?>
                 &nbsp;<span class="description">[birthdays class="your_class" img_width="desired_width" template="default | list | calendar"]</span><br />
                 <?php _e( 'You can either add it your self, ', 'birthdays-widget' ); ?>
@@ -627,18 +639,12 @@
         }
 
         public function birthdays_user_edit() {
-            if ( current_user_can( 'birthdays_options' ) )
-                return true;
             $current_user = wp_get_current_user();
             $birthdays_settings = get_option( 'birthdays_settings' );
             $birthdays_settings = maybe_unserialize( $birthdays_settings );
-            if ( $birthdays_settings[ 'roles' ] ) {
-                $current_roles = $birthdays_settings[ 'roles' ];
-            } else {
-                $current_roles = array();
-            }
-            foreach( $current_user->roles as $role ) {
-                if ( in_array( ucfirst( $role ), $current_roles ) )
+            $current_roles = $birthdays_settings [ 'roles' ];
+            foreach($current_user->roles as $role) {
+                if ( in_array(ucfirst($role), $current_roles) )
                     return true; 
             }
             return false;

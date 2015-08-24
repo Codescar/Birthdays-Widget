@@ -112,7 +112,10 @@ class Birthdays_Widget extends WP_Widget {
         if ( !isset( $instance[ 'template' ] ) ) {
             $instance[ 'template' ] = 0;
         }
-        $html .= "<div class=\"birthdays-widget {$instance[ 'class' ]}\">";
+        if ( $birthdays_settings[ 'tooltip' ] ) {
+            $html_tmp = "birthdays-tooltip-enabled";
+        }
+        $html .= "<div class=\"birthdays-widget {$instance[ 'class' ]} {$html_tmp}\">";
             if ( $birthdays_settings[ 'image_enabled' ] ) {
                 $tmp_size = $birthdays_settings[ 'image_width' ];
                 if ( is_numeric( $birthdays_settings[ 'image_url' ] ) ) {
@@ -132,7 +135,9 @@ class Birthdays_Widget extends WP_Widget {
                     $default_user_image_src = $birthdays_settings[ 'user_image_url' ];
                 }
             }
-            $html .= "<div class=\"birthday-wish\">{$birthdays_settings[ 'wish' ]}</div>";
+            if ( !$birthdays_settings[ 'wish_disabled' ] ) {
+                $html .= "<div class=\"birthday-wish\">{$birthdays_settings[ 'wish' ]}</div>";
+            }
             /*
              * For each user that has birthday today, if his name is
              * in the cs_birth_widg_# format (which means he is a WP User),
