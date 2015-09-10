@@ -3,14 +3,14 @@ Plugin Name: Birthdays Widget
 Plugin URI: http://wordpress.org/plugins/birthdays-widget/
 Description: Birthdays widget plugin produces a widget which displays a customizable happy birthday image and wish to your clients/users.
 Author: lion2486, Sudavar
-Version: 1.7.2
+Version: 1.7.7
 Author URI: http://www.codescar.eu 
 Contributors: lion2486, Sudavar
 Donate link: https://www.paypal.com/gr/cgi-bin/webscr?cmd=_flow&SESSION=Rxb14ltcz8y8NfgafCdykAi4liOMv6F4qTihJEStzyBstHV2Eube-Yz49g4&dispatch=5885d80a13c0db1f8e263663d3faee8d66f31424b43e9a70645c907a6cbd8fb4
 Tags: widget, birthdays, custom birthday list, WordPress User birthday, birthday calendar
 Requires at least: 3.0.1
-Tested up to: 4.0
-Stable tag: 1.7.2
+Tested up to: 4.3
+Stable tag: 1.7.7
 Text Domain: birthdays-widget
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -50,6 +50,30 @@ This section describes how to install the plugin and get it working.
 3. Options Page
 
 == Changelog ==
+
+= 1.7.7 =
+* New assets
+* New default images and colors
+* Better code to handle year change in upcoming mode
+
+= 1.7.6 =
+* Upcoming mode displays optionally year next to month in date
+* Upcoming mode displays optionally year change between dates
+* User image broken image displayed when disabled, fixed in all modes
+* Optional custom message when no records exist in birthday table in all modes
+* Birthdays of next year in upcoming mode bug fixed, thanks to Matthieu [boo6ie] for his help
+
+= 1.7.5 =
+* Upcoming mode up to whole year now (365 days)
+* Bug with permissions temporarily bypassed, todo fix it
+
+= 1.7.4 =
+* Bug fix of Tooltip option
+* Upcoming template available with shortcode
+* Minor bug fixes
+
+= 1.7.3 =
+* DataTable version updated because it broke JS in 4.3
 
 = 1.7.2 =
 * Tested up to WordPress 4.3 version

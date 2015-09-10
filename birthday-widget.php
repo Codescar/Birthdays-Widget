@@ -4,7 +4,7 @@
     Plugin URI: https://wordpress.org/plugins/birthdays-widget/
     Description: Birthdays widget plugin produces a widget which displays a customizable happy birthday image and wish to your clients/users.
     Author: lion2486, Sudavar
-    Version: 1.7.2
+    Version: 1.7.7
     Author URI: http://www.codescar.eu 
     Contributors: lion2486, Sudavar
     Tags: widget, birthdays, custom birthday list, WordPress User birthday, birthday calendar
@@ -15,7 +15,7 @@
     License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-    define( 'BW', '1.7.2' );
+    define( 'BW', '1.7.7' );
     require_once dirname( __FILE__ ) . '/class-birthdays-widget.php';
     require_once dirname( __FILE__ ) . '/class-birthdays-widget-installer.php';
     require_once dirname( __FILE__ ) . '/class-birthdays-widget-settings.php';  
@@ -160,7 +160,7 @@
                               } else {
                                 echo 'value="" />'; 
                         } ?>
-                        <br /><span class="description"><?php _e( 'Please enter user\'s birthday requested by birthdays widget', 'birthdays-widget' ); ?></span>
+                        <br /><span class="description"><?php _e( 'Please enter user\'s birthday requested by Birthdays Widget', 'birthdays-widget' ); ?></span>
 						<input type="hidden" name="birthday_usr_id" value="<?php echo $user_id; ?>" />
         <?php 
         if ( isset( $id ) )
@@ -212,9 +212,11 @@
 
     // Feature: Shortcode for birthdays in pages/posts
     function birthdays_shortcode( $atts ) {
+        $birthdays_settings = get_option( 'birthdays_settings' );
+        $birthdays_settings = maybe_unserialize( $birthdays_settings );
         $attr = shortcode_atts( array(
             'class' => '',
-            'img_width' => '0',
+            'img_width' => $birthdays_settings[ 'image_width' ],
             'template' => '0'
         ), $atts );
         if ( $attr[ 'template' ] == 'default' ) {
@@ -223,17 +225,22 @@
             $attr[ 'template' ] = 1;
         } else if ( $attr[ 'template' ] == 'calendar' ) {
             $attr[ 'template' ] = 2;
+        } else if ( $attr[ 'template' ] == 'upcoming' ) {
+            $attr[ 'template' ] = 3;
         } else {
             $attr[ 'template' ] = 0;
         }
         $instance = array( 'class' => $attr[ 'class' ], 'img_width' => $attr[ 'img_width' ], 'template' => $attr[ 'template' ] );
-        if ( $attr[ 'template' ] == 2 ) {
+        if ( $attr[ 'template' ] == 2 || $attr[ 'template' ] == 3 ) {
             $birthdays = birthdays_widget_check_for_birthdays( true );
         } else {
             $birthdays = birthdays_widget_check_for_birthdays();
         }
         if ( count( $birthdays ) >= 1 ) {
-            return Birthdays_Widget::birthdays_code( $instance, $birthdays );
+            return Birthdays_Widget::birthdays_code( $instance, $birthdays, $birthdays_settings );
+        } elseif ( $birthdays_settings[ 'empty_response' ] ) {
+            wp_enqueue_style ( 'birthdays-css' );
+            return '<div class="birthday_error">'. $birthdays_settings[ 'empty_response_text' ] . '</div>';
         }
     }
     add_shortcode( 'birthdays', 'birthdays_shortcode' );

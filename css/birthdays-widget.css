@@ -4,13 +4,32 @@
 
 .birthdays-widget img {
     display: block;
+    margin-top: 0;
+    margin-bottom: 0;
+    box-shadow: none;
 }
 
 .birthday-wish {
-    color: red; 
+    color: #BE1E2D; 
     font-weight: bold;
     line-height: 1.5;
     font-size: larger;
+    margin: 2% 0;
+}
+
+.popover-title {
+    text-align: center;
+    color: #BE1E2D;
+}
+
+.popover-content > img {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.ui-tooltip-content > img {
+    width: 80%;
+    margin: 0 auto;
 }
 
 .birthday_element {
@@ -22,10 +41,28 @@
     text-transform: capitalize;
 }
 
+.birthday_year {
+    text-align: center;
+    margin: 1% 14% 0% 15%;
+    font-size: larger;
+    font-style: italic;
+    font-weight: bold;
+    color: #BE1E2D;
+}
+.birthday_year + .birthday_date {
+    margin-top: 1%;
+}
+
 .birthday_age {
 	font-style: italic;
 	font-size: smaller;
     text-transform: none;
+}
+
+.birthday_error {
+    text-align: center;
+    font-style: italic;
+    color: #BE1E2D;
 }
 
 .opt_item {

@@ -143,15 +143,19 @@ jQuery( document ).ready( function() {
         return false;
     } );
 
-    if ( jQuery( '.birthdays-widget' ).length >= 1 ) {
+    if ( jQuery( '.birthdays-widget.birthdays-tooltip-enabled' ).length >= 1 ) {
         jQuery( document ).tooltip( {
             items: ".birthday_element",
             content: function() {
                 var element = jQuery( 'a', this );
                 if ( element.length >= 1 ) {
-                    var str = '<img src="'+element.attr( 'href' )+'" alt="User\'s Image" style="width: 200px;" />';
+                    if ( element.hasClass( 'user_image_enabled' ) ) {
+                        var str = '<img src="'+element.attr( 'href' )+'" alt="User\'s Image" /><br />';
+                    } else {
+                        var str = '';
+                    }
                     if ( element.attr( 'data-age' ) )
-                        str += '<br /><span class="birthday_age" >'+element.attr( 'data-age' )+'</span>';
+                        str += '<span class="birthday_age" >'+element.attr( 'data-age' )+'</span>';
                     return str;
                 }
             },

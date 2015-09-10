@@ -69,6 +69,11 @@
                     } else {
                         $birthdays_settings[ 'wish_disabled' ] = 0;
                     }
+                    if ( isset( $_POST[ 'birthdays_empty_response' ] ) && $_POST[ 'birthdays_empty_response' ] != '0' ) {
+                        $birthdays_settings[ 'empty_response' ] = 1;
+                    } else {
+                        $birthdays_settings[ 'empty_response' ] = 0;
+                    }
                     if ( isset( $_POST[ 'birthdays_tooltip' ] ) && $_POST[ 'birthdays_tooltip' ] != '0' ) {
                         $birthdays_settings[ 'tooltip' ] = 1;
                     } else {
@@ -98,6 +103,8 @@
                         if ( !is_numeric( $_POST[ 'upcoming_days_birthdays' ] ) ) {
                             $birthdays_settings[ 'upcoming_days_birthdays' ] = 3;
                         } else {
+                            if ( $_POST[ 'upcoming_days_birthdays' ] > 365 )
+                                $_POST[ 'upcoming_days_birthdays' ] = 365;
                             $birthdays_settings[ 'upcoming_days_birthdays' ] = $_POST[ 'upcoming_days_birthdays' ];
                         }
                     } else {
@@ -107,6 +114,8 @@
                         if ( !is_numeric( $_POST[ 'upcoming_consecutive_days' ] ) ) {
                             $birthdays_settings[ 'upcoming_consecutive_days' ] = 3;
                         } else {
+                            if ( $_POST[ 'upcoming_consecutive_days' ] > 365 )
+                                $_POST[ 'upcoming_consecutive_days' ] = 365;
                             $birthdays_settings[ 'upcoming_consecutive_days' ] = $_POST[ 'upcoming_consecutive_days' ];
                         }
                     } else {
@@ -163,6 +172,16 @@
                     } else {
                         $birthdays_settings[ 'image_enabled' ] = 0;
                     }
+                    if ( isset( $_POST[ 'birthdays_upcoming_year' ] ) && !empty( $_POST[ 'birthdays_upcoming_year' ] ) ) {
+                        $birthdays_settings[ 'upcoming_year' ] = 1;
+                    } else {
+                        $birthdays_settings[ 'upcoming_year' ] = 0;
+                    }
+                    if ( isset( $_POST[ 'birthdays_upcoming_year_seperate' ] ) && !empty( $_POST[ 'birthdays_upcoming_year_seperate' ] ) ) {
+                        $birthdays_settings[ 'upcoming_year_seperate' ] = 1;
+                    } else {
+                        $birthdays_settings[ 'upcoming_year_seperate' ] = 0;
+                    }
                     if ( isset( $_POST[ 'birthdays_user_image_url' ] ) && !empty( $_POST[ 'birthdays_user_image_url' ] ) ) {
                         $birthdays_settings[ 'user_image_url' ] = wp_strip_all_tags( $_POST[ 'birthdays_user_image_url' ] );
                     } else {
@@ -177,6 +196,11 @@
                         $birthdays_settings[ 'wish' ] = wp_strip_all_tags( $_POST[ 'birthdays_wish' ] );
                     } else {
                         $birthdays_settings[ 'wish' ] = __( 'Happy Birthday', 'birthdays-widget' );
+                    }
+                    if ( isset( $_POST[ 'birthdays_empty_response_text' ] ) && !empty( $_POST[ 'birthdays_empty_response_text' ] ) ) {
+                        $birthdays_settings[ 'empty_response_text' ] = wp_strip_all_tags( $_POST[ 'birthdays_empty_response_text' ] );
+                    } else {
+                        $birthdays_settings[ 'empty_response_text' ] = __( 'No records for these days', 'birthdays-widget' );
                     }
                     if ( isset( $_POST[ 'color_current_day' ] ) && !empty( $_POST[ 'color_current_day' ] ) ) {
                         $birthdays_settings[ 'color_current_day' ] = wp_strip_all_tags( $_POST[ 'color_current_day' ] );
@@ -247,7 +271,34 @@
                                             <option value='1' <?php if ( $birthdays_settings[ 'wish_disabled' ] == 1 ) echo "selected='selected'"; ?> ><?php _e( 'Yes' , 'birthdays-widget' ); ?></option>
                                             <option value='0' <?php if ( $birthdays_settings[ 'wish_disabled' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No' , 'birthdays-widget' ); ?></option>
                                         </select>
-                                        <br /><?php _e( 'Don\' show birthday wish', 'birthdays-widget' ); ?>
+                                        <br /><?php _e( 'Don\'t show birthday wish', 'birthdays-widget' ); ?>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Return on Empty Response', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Return on Empty Response', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="birthdays_empty_response">
+                                        <select name="birthdays_empty_response" id="birthdays_empty_response">
+                                            <option value='0' <?php if ( $birthdays_settings[ 'empty_response' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'Nothing', 'birthdays-widget' ); ?></option>
+                                            <option value='1' <?php if ( $birthdays_settings[ 'empty_response' ] == 1 ) echo "selected='selected'"; ?> ><?php _e( 'Empty Response Message', 'birthdays-widget' ); ?></option>
+                                        </select>
+                                        <br /><?php _e( 'What to show when there are no birthdays', 'birthdays-widget' ); ?>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Empty Response Message', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Empty Response Message', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="birthdays_empty_response_text">
+                                        <input type="text" size="35" name="birthdays_empty_response_text" id="birthdays_empty_response_text" value="<?php echo $birthdays_settings[ 'empty_response_text' ]; ?>" />
+                                        <br /><?php _e( 'Write your custom message to show on empty response', 'birthdays-widget' ); ?>
                                     </label>
                                 </fieldset>
                             </td>
@@ -259,8 +310,8 @@
                                     <legend class="screen-reader-text"><span><?php _e( 'Fields in Registration Form', 'birthdays-widget' ); ?></span></legend>
                                     <label for="birthdays_register_form">
                                         <select name="birthdays_register_form" id="birthdays_register_form">
-                                            <option value='1' <?php if ( $birthdays_settings[ 'register_form' ] == 1 ) echo "selected='selected'"; ?> ><?php _e( 'Yes' , 'birthdays-widget' ); ?></option>
-                                            <option value='0' <?php if ( $birthdays_settings[ 'register_form' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No' , 'birthdays-widget' ); ?></option>
+                                            <option value='1' <?php if ( $birthdays_settings[ 'register_form' ] == 1 ) echo "selected='selected'"; ?> ><?php _e( 'Yes', 'birthdays-widget' ); ?></option>
+                                            <option value='0' <?php if ( $birthdays_settings[ 'register_form' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No', 'birthdays-widget' ); ?></option>
                                         </select>
                                         <br /><?php _e( 'Name and Birthday fields at WordPress User Registration Form', 'birthdays-widget' ); ?>
                                     </label>
@@ -274,8 +325,8 @@
                                     <legend class="screen-reader-text"><span><?php _e( 'Comma between names', 'birthdays-widget' ); ?></span></legend>
                                     <label for="birthdays_comma">
                                         <select name="birthdays_comma" id="birthdays_comma">
-                                            <option value='1' <?php if ( $birthdays_settings[ 'comma' ] == 1 ) echo "selected='selected'"; ?> ><?php _e( 'Yes' , 'birthdays-widget' ); ?></option>
-                                            <option value='0' <?php if ( $birthdays_settings[ 'comma' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No' , 'birthdays-widget' ); ?></option>
+                                            <option value='1' <?php if ( $birthdays_settings[ 'comma' ] == 1 ) echo "selected='selected'"; ?> ><?php _e( 'Yes', 'birthdays-widget' ); ?></option>
+                                            <option value='0' <?php if ( $birthdays_settings[ 'comma' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No', 'birthdays-widget' ); ?></option>
                                         </select>
                                         <br /><?php _e( 'Select if you want comma (,) to be displayed between the names in widget', 'birthdays-widget' ); ?>
                                         <br /><span class="description">
@@ -513,7 +564,7 @@
                                     <legend class="screen-reader-text"><span><?php _e( 'Calendar Color #1', 'birthdays-widget' ); ?></span></legend>
                                     <label for="color_one">
                                         <input name="color_one" type="text" value="<?php echo $birthdays_settings[ 'color_one' ]; ?>" class="color_field" 
-                                            data-default-color="#2277cc" />
+                                            data-default-color="#BE1E2D" />
                                         <br /><?php _e( 'Select the color of days marked with birthdays in Calendar view of widget', 'birthdays-widget' ); ?>
                                     </label>
                                 </fieldset>
@@ -585,7 +636,7 @@
                                     <label for="upcoming_days_birthdays">
                                         <input name="upcoming_days_birthdays" id="upcoming_days_birthdays" type="number" 
                                             value="<?php echo ( $birthdays_settings[ 'upcoming_days_birthdays' ] ); ?>" />
-                                        <br /><?php _e( 'Select number of days with birthdays displayed in upcoming view', 'birthdays-widget' ); ?>
+                                        <br /><?php _e( 'Select number of days with birthdays displayed in upcoming view', 'birthdays-widget' ); ?>&nbsp;<= 365
                                     </label>
                                 </fieldset>
                             </td>
@@ -598,7 +649,37 @@
                                     <label for="upcoming_consecutive_days">
                                         <input name="upcoming_consecutive_days" id="upcoming_consecutive_days" type="number" 
                                             value="<?php echo ( $birthdays_settings[ 'upcoming_consecutive_days' ] ); ?>" />
-                                        <br /><?php _e( 'Select number of consecutive days displayed in upcoming view', 'birthdays-widget' ); ?>
+                                        <br /><?php _e( 'Select number of consecutive days displayed in upcoming view', 'birthdays-widget' ); ?>&nbsp;<= 365
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Show Year in Date', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( '', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="birthdays_upcoming_year">
+                                        <select name="birthdays_upcoming_year" id="birthdays_upcoming_year">
+                                            <option value='1' <?php if ( $birthdays_settings[ 'upcoming_year' ] == 1 ) echo "selected='selected'"; ?> ><?php _e( 'Yes' , 'birthdays-widget' ); ?></option>
+                                            <option value='0' <?php if ( $birthdays_settings[ 'upcoming_year' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No' , 'birthdays-widget' ); ?></option>
+                                        </select>
+                                        <br /><?php _e( 'Usefull if you set number of days large enough to see next year\'s birthdays', 'birthdays-widget' ); ?>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Display changing year between birthdays', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Display changing year between birthdays', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="birthdays_upcoming_year_seperate">
+                                        <select name="birthdays_upcoming_year_seperate" id="birthdays_upcoming_year_seperate">
+                                            <option value='1' <?php if ( $birthdays_settings[ 'upcoming_year_seperate' ] == 1 ) echo "selected='selected'"; ?> ><?php _e( 'Yes' , 'birthdays-widget' ); ?></option>
+                                            <option value='0' <?php if ( $birthdays_settings[ 'upcoming_year_seperate' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No' , 'birthdays-widget' ); ?></option>
+                                        </select>
+                                        <br /><?php _e( 'Usefull if you set number of days large enough to see next year\'s birthdays', 'birthdays-widget' ); ?>
                                     </label>
                                 </fieldset>
                             </td>
@@ -611,9 +692,9 @@
             </form>               
             <hr />
             <p>
-                <span class="description alignright"><?php echo __( 'Plugin Version ', 'birthdays-widget' ) . BW; ?></span>
+                <span class="description alignright"><?php echo __( 'Plugin Version', 'birthdays-widget' ) . ' ' . BW; ?></span>
                 <?php _e( '<b>Shortcode</b> is also available for use in posts or pages: ', 'birthdays-widget' ); ?>
-                &nbsp;<span class="description">[birthdays class="your_class" img_width="desired_width" template="default | list | calendar"]</span><br />
+                &nbsp;<span class="description">[birthdays class="your_class" img_width="desired_width" template="default | list | calendar | upcoming"]</span><br />
                 <?php _e( 'You can either add it your self, ', 'birthdays-widget' ); ?>
                 <?php _e( 'or you can click on our birthday button.', 'birthdays-widget' ); ?>
             </p>
@@ -639,12 +720,14 @@
         }
 
         public function birthdays_user_edit() {
+            return true;
+            //TODO Fix the permissions issue
             $current_user = wp_get_current_user();
             $birthdays_settings = get_option( 'birthdays_settings' );
             $birthdays_settings = maybe_unserialize( $birthdays_settings );
             $current_roles = $birthdays_settings [ 'roles' ];
-            foreach($current_user->roles as $role) {
-                if ( in_array(ucfirst($role), $current_roles) )
+            foreach( $current_user->roles as $role ) {
+                if ( in_array( ucfirst( $role ), $current_roles ) )
                     return true; 
             }
             return false;
@@ -687,12 +770,12 @@
                 }
             }
 
-			if ( isset( $_GET[ 'birthdays_delete_all' ] ) ) {
+            if ( isset( $_GET[ 'birthdays_delete_all' ] ) ) {
                 //drop a custom db table
-				global $wpdb;
-				$table_name = $wpdb->prefix . "birthdays";
-				$sql = "TRUNCATE TABLE `$table_name`;" ;
-				$wpdb->query( $sql );
+                global $wpdb;
+                $table_name = $wpdb->prefix . "birthdays";
+                $sql = "TRUNCATE TABLE `$table_name`;" ;
+                $wpdb->query( $sql );
             }
 
             if ( isset( $_GET[ 'action' ] ) && !isset( $_POST[ 'birthdays_add_new'] ) ) {
