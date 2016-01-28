@@ -129,7 +129,7 @@ class Birthdays_Widget extends WP_Widget {
                     $default_image_src = $birthdays_settings[ 'image_url' ];
                 }
                 $html .= "<img style=\"width: {$birthdays_settings[ 'image_width' ]}\" 
-                    src=\"$default_image_src\" alt=\"birthday_cake\" class=\"aligncenter\" />";
+                    src=\"$default_image_src\" alt=\"birthday_cake\" class=\"aligncenter birthday_wish_image\" />";
             }
             if ( $birthdays_settings[ 'user_image_enabled' ] ) {
                 if ( is_numeric( $birthdays_settings[ 'user_image_url' ] ) ) {
@@ -140,7 +140,7 @@ class Birthdays_Widget extends WP_Widget {
                 }
             }
             if ( !$birthdays_settings[ 'wish_disabled' ] ) {
-                $html .= "<div class=\"birthday-wish\">{$birthdays_settings[ 'wish' ]}</div>";
+                $html .= "<div class=\"birthday_wish\">{$birthdays_settings[ 'wish' ]}</div>";
             }
             /*
              * For each user that has birthday today, if his name is
@@ -149,20 +149,14 @@ class Birthdays_Widget extends WP_Widget {
              * save Users' birthdays in our table is enabled.
              */
             $meta_key = $birthdays_settings[ 'meta_field' ];
+            $photo_meta_key = $birthdays_settings[ 'photo_meta_field' ];
             $prefix = "cs_birth_widg_";
             $filtered = array();
             $year = true;
 			foreach ( $birthdays as $row ) {
                 //Check if this is record represents a WordPress user
                 $wp_usr = strpos( $row->name, $prefix );
-                if ( isset( $row->image ) && ( is_numeric( $row->image ) || $row->image == NULL ) ) {
-                    if ( $instance[ 'template' ] == 2 ) {
-                        $row->image = wp_get_attachment_image_src( $row->image, array( 150, 150 ) );
-                    } else {
-                        $row->image = wp_get_attachment_image_src( $row->image, 'medium' );
-                    }
-                    $row->image = $row->image[ 0 ];
-                }
+
                 if ( $wp_usr !== false ) {
                     //If birthdays are disabled for WP Users, or birthday date is drown from WP Profile, skip the record
                     if ( ( $birthdays_settings[ 'profile_page' ] == 0 && $birthdays_settings[ 'date_from_profile' ] == 0 ) 
@@ -180,15 +174,36 @@ class Birthdays_Widget extends WP_Widget {
                         }
                     }
                     //If birthdays are enabled for WP Users, draw user's name from the corresponding meta key
-                    if ( $birthdays_settings[ 'profile_page' ] ) {
+                    if ( $birthdays_settings[ 'meta_field_bp' ] ) {
+                        $query = 'field='.$birthdays_settings[ 'meta_field' ].'&user_id='.$birth_user->id;
+                        $row->name = bp_get_profile_field_data( $query );
+                    } else if ( $birthdays_settings[ 'profile_page' ] && !$birthdays_settings[ 'meta_field_bp' ] ) {
                         $row->name = $birth_user->{$meta_key};
                     }
+                }
+
+                if ( $birthdays_settings[ 'photo_meta_field_enabled' ] && $wp_usr !== false && !$birthdays_settings[ 'wp_user_gravatar' ] ) {
+                    if ( $birthdays_settings[ 'photo_meta_field_bp' ] ) {
+                        $query = 'field='.$photo_meta_key.'&user_id='.$birth_user->id;
+                        $row->image = bp_get_profile_field_data( $query );
+                    } else {
+                        $row->image = $birth_user->{$photo_meta_key};
+                    }
+                }
+                if ( isset( $row->image ) && ( is_numeric( $row->image ) || $row->image == NULL ) ) {
+                    if ( $instance[ 'template' ] == 2 ) {
+                        $row->image = wp_get_attachment_image_src( $row->image, array( 150, 150 ) );
+                    } else {
+                        $row->image = wp_get_attachment_image_src( $row->image, 'medium' );
+                    }
+                    $row->image = $row->image[ 0 ];
                 }
                 //If user has no image, set the default
                 if ( ( !isset( $row->image ) || empty( $row->image ) ) && $birthdays_settings[ 'user_image_enabled' ] ) {
                     $row->image = $default_user_image_src;
                 }
                 array_push( $filtered, $row );
+                uasort( $filtered, "cmp" );
             }
             switch ( $instance[ 'template' ] ) {
                 case 0:
@@ -374,8 +389,15 @@ class Birthdays_Widget extends WP_Widget {
                                 reset( $days_organized );
                                 $tmp_count = 0;
                             } elseif( ( current( $days_organized ) == false ) && $i == 0 ) {
-                                next( $days_organized );
                                 $tmp_count++;
+                                if ( $tmp_count == $total ) {
+                                    reset( $days_organized );
+                                    $final_days[] = current( $days_organized );
+                                    next( $days_organized );
+                                    $tmp_count = 1;
+                                    continue;
+                                }
+                                next( $days_organized );
                             }
                             if ( $tmp_count == $offset && $i != 0 ) {
                                 break;
@@ -413,7 +435,7 @@ class Birthdays_Widget extends WP_Widget {
                             if ( $birthdays_settings[ 'upcoming_year_seperate' ] && !$year_passed ) {
                                 if ( $date1 < $today && $date1 != $today ) {
                                     $tmp = $year + 1;
-                                    $html .= '<div class="birthday_year" >'. __( 'Year', 'birthdays-widget' ) . ' ' . $tmp . '</div>';
+                                    $html .= '<div class="birthday_year" >'. __( 'Year' ) . ' ' . $tmp . '</div>';
                                     $year_passed = true;
                                 }
                             }

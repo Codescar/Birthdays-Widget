@@ -24,9 +24,14 @@
                 'date_from_profile' => '0',
                 'wp_user_gravatar' => '0',
                 'meta_field' => 'display_name',
+                'meta_field_bp' => '0',
                 'comma' => '1',
                 'user_data' => '2',
                 'date_meta_field' => '',
+                'date_meta_field_bp' => '0',
+                'photo_meta_field' => '',
+                'photo_meta_field_bp' => '0',
+                'photo_meta_field_enabled' => '0',
                 'image_url' => plugins_url( '/images/birthday_cake.png' , __FILE__ ),
                 'image_width' => '55%',
                 'list_image_width' => '20%',
@@ -48,7 +53,7 @@
                 'color_one' => '#BE1E2D',
                 'second_color' => '0',
                 'color_two' => '#cc7722',
-                'roles' => array( 'Administrator' => 'Administrator' )
+                'roles' => array( 'Administrator' => 'administrator' )
                 );
             //if the plugin was installed, do not lose previous settings
             if ( !( $tmp = get_option( 'birthdays_settings' ) ) ) {
@@ -62,10 +67,19 @@
                 $birthdays_settings = maybe_serialize( $birthdays_settings );
                 update_option( 'birthdays_settings', $birthdays_settings );
             }
+            foreach( $birthdays_settings[ 'roles' ] as $role ) {
+                $tmp = get_role( $role[ 0 ] );
+                $tmp->add_cap( 'birthdays_list' ); 
+            }
             return;
         }
 
         static function unistall() {
+            $birthdays_settings = get_option( 'birthdays_settings' );
+            foreach( $birthdays_settings[ 'roles' ] as $role ) {
+                $role = get_role( $role[ 0 ] );
+                $role->remove_cap( 'birthdays_list' ); 
+            }
             //delete plugin's options
             delete_option( 'birthdays_settings' );
 

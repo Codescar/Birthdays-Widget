@@ -44,7 +44,7 @@
         }
         
         public function create_options_page() {
-            if ( ! current_user_can( 'manage_options' ) && ! self::birthdays_user_edit() ) {
+            if ( ! current_user_can( 'manage_options' ) ) {
                 wp_die( __( 'You do not have sufficient permissions to access this page.', 'birthdays-widget' ) );
             } ?>
         <div class="wrap">
@@ -53,12 +53,17 @@
             <?php
                 wp_enqueue_script( 'birthdays-script' );
                 wp_enqueue_style ( 'birthdays-css' );
-                wp_enqueue_media();
+                wp_enqueue_media ();
                 
                 $birthdays_settings = get_option( 'birthdays_settings' );
                 $birthdays_settings = maybe_unserialize( $birthdays_settings );
+                $prefix = "cs_birth_widg_";
                 if ( isset( $_POST[ 'birthdays_save' ] ) && check_admin_referer( 'birthdays_form' ) ) {
                     $birthdays_settings[ 'roles' ] = $_POST[ 'roles'];
+					foreach( $birthdays_settings[ 'roles' ] as $role ) {
+                        $tmp = get_role( $role );
+                        $tmp->add_cap( 'birthdays_list' ); 
+                    }
                     if ( isset( $_POST[ 'birthdays_register_form' ] ) && $_POST[ 'birthdays_register_form' ] != '0' ) {
                         $birthdays_settings[ 'register_form' ] = 1;
                     } else {
@@ -78,11 +83,6 @@
                         $birthdays_settings[ 'tooltip' ] = 1;
                     } else {
                         $birthdays_settings[ 'tooltip' ] = 0;
-                    }
-                    if ( isset( $_POST[ 'birthdays_meta_field' ] ) ) {
-                        $birthdays_settings[ 'meta_field' ] = wp_strip_all_tags( $_POST[ 'birthdays_meta_field' ] );
-                    } else {
-                        $birthdays_settings[ 'meta_field' ] = 'display_name';
                     }
                     if ( isset( $_POST[ 'birthdays_comma' ] ) && $_POST[ 'birthdays_comma' ] != '0' ) {
                         $birthdays_settings[ 'comma' ] = 1;
@@ -121,11 +121,6 @@
                     } else {
                         $birthdays_settings[ 'upcoming_consecutive_days' ] = 3;
                     }
-                    if ( isset( $_POST[ 'birthdays_date_meta_field' ] ) ) {
-                        $birthdays_settings[ 'date_meta_field' ] = $_POST[ 'birthdays_date_meta_field' ];
-                    } else {
-                        $birthdays_settings[ 'date_meta_field' ] = '';
-                    }
                     if ( isset( $_POST[ 'wp_user_gravatar' ] ) && $_POST[ 'wp_user_gravatar' ] != '0' ) {
                         $birthdays_settings[ 'wp_user_gravatar' ] = 1;
                     } else {
@@ -137,20 +132,64 @@
                             /* Birthdays of WP Users are saved in our table and field in WP Profile is shown */
                             $birthdays_settings[ 'profile_page' ] = 1;
                             $birthdays_settings [ 'date_from_profile' ] = 0;
+                            $birthdays_settings[ 'date_meta_field_bp' ] = 0;
                             //TODO Maybe add a function to delete all WP User Birthdays saved in our table
                         } elseif ( $_POST[ 'birthdays_user_data' ] == 1 ) {
                             /* Birthdays of WP Users are being drawn from a WP User meta field specified by the user */
                             $birthdays_settings[ 'profile_page' ] = 0;
                             $birthdays_settings [ 'date_from_profile' ] = 1;
+                            $birthdays_settings[ 'date_meta_field_bp' ] = 0;
                         } else {
                             /* Birthdays of WP Users are disabled, which is the default scenario */
                             $birthdays_settings[ 'profile_page' ] = 0;
                             $birthdays_settings [ 'date_from_profile' ] = 0;
+                            $birthdays_settings[ 'date_meta_field_bp' ] = 0;
                         }
                     } else {
                         $birthdays_settings[ 'user_data' ] = 2;
                         $birthdays_settings[ 'profile_page' ] = 0;
                         $birthdays_settings [ 'date_from_profile' ] = 0;
+                    }
+                    if ( isset( $_POST[ 'birthdays_date_meta_field' ] ) ) {
+                        $flag = strpos( $_POST[ 'birthdays_date_meta_field' ], $prefix );
+                        if ( $flag === 0 ) {
+                            $birthdays_settings[ 'date_meta_field' ] = substr( $_POST[ 'birthdays_date_meta_field' ], strlen( $prefix ) );
+                            $birthdays_settings[ 'date_meta_field_bp' ] = 1;
+                        } else {
+                            $birthdays_settings[ 'date_meta_field' ] = wp_strip_all_tags( $_POST[ 'birthdays_date_meta_field' ] );
+                            $birthdays_settings[ 'date_meta_field_bp' ] = 0;
+                        }
+                    } else {
+                        $birthdays_settings[ 'date_meta_field' ] = '';
+                    }
+                    if ( isset( $_POST[ 'birthdays_meta_field' ] ) ) {
+                        $flag = strpos( $_POST[ 'birthdays_meta_field' ], $prefix );
+                        if ( $flag === 0 ) {
+                            $birthdays_settings[ 'meta_field' ] = substr( $_POST[ 'birthdays_meta_field' ], strlen( $prefix ) );
+                            $birthdays_settings[ 'meta_field_bp' ] = 1;
+                        } else {
+                            $birthdays_settings[ 'meta_field' ] = wp_strip_all_tags( $_POST[ 'birthdays_meta_field' ] );
+                            $birthdays_settings[ 'meta_field_bp' ] = 0;
+                        }
+                    } else {
+                        $birthdays_settings[ 'meta_field' ] = 'display_name';
+                    }
+                    if ( isset( $_POST[ 'birthdays_photo_meta_field' ] ) ) {
+                        $flag = strpos( $_POST[ 'birthdays_photo_meta_field' ], $prefix );
+                        if ( $flag === 0 ) {
+                            $birthdays_settings[ 'photo_meta_field' ] = substr( $_POST[ 'birthdays_photo_meta_field' ], strlen( $prefix ) );
+                            $birthdays_settings[ 'photo_meta_field_bp' ] = 1;
+                        } else {
+                            $birthdays_settings[ 'photo_meta_field' ] = wp_strip_all_tags( $_POST[ 'birthdays_photo_meta_field' ] );
+                            $birthdays_settings[ 'photo_meta_field_bp' ] = 0;
+                        }
+                    } else {
+                        $birthdays_settings[ 'photo_meta_field' ] = '';
+                    }
+                    if ( isset( $_POST[ 'birthdays_photo_meta_field_enabled' ] ) && $_POST[ 'birthdays_photo_meta_field_enabled' ] != '0' ) {
+                        $birthdays_settings[ 'photo_meta_field_enabled' ] = 1;
+                    } else {
+                        $birthdays_settings[ 'photo_meta_field_enabled' ] = 0;
                     }
                     if ( isset( $_POST[ 'birthdays_widget_image_width' ] ) && !empty( $_POST[ 'birthdays_widget_image_width' ] ) ) {
                         $birthdays_settings[ 'image_width' ] = wp_strip_all_tags( $_POST[ 'birthdays_widget_image_width' ] );
@@ -229,11 +268,7 @@
                     </div><?php
                 }
                 $current_roles = $birthdays_settings[ 'roles' ];
-                $sup_roles = get_editable_roles();
-                $supported_roles = array();
-                foreach ( $sup_roles as $role ) {
-                    $supported_roles[] = $role[ 'name' ];
-                }
+                $supported_roles = $GLOBALS['wp_roles']->role_names;
                 wp_enqueue_style( 'wp-color-picker' );
                 wp_enqueue_script( 'wp-color-picker' );
             ?>
@@ -389,8 +424,17 @@
                                     <select name="birthdays_date_meta_field" <?php echo ($birthdays_settings[ 'user_data' ] == '1') ? '' : "disabled=\"disabled\""; ?>>
                                         <?php $meta_keys = self::birthday_get_filtered_meta();
                                             foreach ( $meta_keys as $key ): ?>
-                                                <option value="<?php echo $key; ?>" <?php echo ($birthdays_settings[ 'date_meta_field' ] == $key) ? "selected=\"selected\"" : ''; ?> >
-                                                    <?php echo $key; ?></option>
+                                                <?php if ( preg_match( '/bpid/', $key ) ):
+                                                        $buddy = explode( '-', $key );
+                                                        $value = $prefix . preg_replace( '/[^0-9.]+/', '', $buddy[0] );
+                                                        $name = $buddy[1]; ?>
+                                                    <option value="<?php echo $value; ?>" 
+                                                        <?php echo ( $prefix . $birthdays_settings[ 'date_meta_field' ] == $value) ? "selected=\"selected\"" : ''; ?> ><?php echo $name . " (BuddyPress)"; ?>
+                                                    </option>
+                                                <?php else: ?>
+                                                    <option value="<?php echo $key; ?>" <?php echo ($birthdays_settings[ 'date_meta_field' ] == $key) ? "selected=\"selected\"" : ''; ?> >
+                                                        <?php echo $key; ?></option>
+                                                <?php endif; ?>
                                         <?php endforeach; ?>
                                     </select>
                                     <?php _e( ' meta field of WordPress User Profile', 'birthdays-widget' ); ?>
@@ -411,11 +455,20 @@
                                         <select name="birthdays_meta_field">
                                             <?php $meta_keys = self::birthday_get_filtered_meta();
                                                 foreach ( $meta_keys as $key ): ?>
-                                                    <option value="<?php echo $key; ?>" <?php echo ( $birthdays_settings[ 'meta_field' ] == $key ) ? "selected=\"selected\"" : ''; ?> >
-                                                        <?php echo $key; ?></option>
+                                                    <?php if ( preg_match( '/bpid/', $key ) ):
+                                                        $buddy = explode( '-', $key );
+                                                        $value = $prefix . preg_replace( '/[^0-9.]+/', '', $buddy[0] );
+                                                        $name = $buddy[1]; ?>
+                                                        <option value="<?php echo $value; ?>" 
+                                                            <?php echo ( $prefix . $birthdays_settings[ 'meta_field' ] == $value) ? "selected=\"selected\"" : ''; ?> ><?php echo $name . " (BuddyPress)"; ?>
+                                                        </option>
+                                                    <?php else: ?>
+                                                        <option value="<?php echo $key; ?>" <?php echo ( $birthdays_settings[ 'meta_field' ] == $key ) ? "selected=\"selected\"" : ''; ?> >
+                                                            <?php echo $key; ?></option>
+                                                    <?php endif; ?>
                                             <?php endforeach; ?>
                                         </select>
-                                        <br /><?php _e( 'Select which Wordpress User\'s meta value you like to be shown as name in widget', 'birthdays-widget' ); ?>
+                                        <br /><?php _e( 'Select which WordPress User\'s meta value you like to be shown as name in widget', 'birthdays-widget' ); ?>
                                         <br /><span class="description">
                                             <?php _e( 'Careful! The meta you select must be present in every WP User you set a birthday, otherwise nothing will be displayed.', 'birthdays-widget' ); ?>
                                         </span>
@@ -434,8 +487,52 @@
                                             <option value="0" <?php echo ( $birthdays_settings[ 'wp_user_gravatar' ] == 0 ) ? "selected=\"selected\"" : ''; ?> ><?php _e( 'Disabled' , 'birthdays-widget' ); ?></option>
                                         </select>
                                         <br /><span class="description">
-                                            <?php _e( 'If disabled images for WordPress Users will be handled with WordPress Media Manager.', 'birthdays-widget' ); ?>
+                                            <?php _e( 'Regarding WordPress Users Image: If both Gravatar and meta key are enabled, Gravatar will prevail.<br />
+                                            If Gravatar and Meta value are disabled and WordPress User is saved in our table, then the image defined in List of Birthdays will be displayed.', 'birthdays-widget' ); ?>
                                         </span>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Image from meta value', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Image from meta value', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="birthdays_photo_meta_field_enabled">
+                                        <select name="birthdays_photo_meta_field_enabled">
+                                            <option value="1" <?php echo ( $birthdays_settings[ 'photo_meta_field_enabled' ] == 1 ) ? "selected=\"selected\"" : ''; ?> ><?php _e( 'Enabled' , 'birthdays-widget' ); ?></option>
+                                            <option value="0" <?php echo ( $birthdays_settings[ 'photo_meta_field_enabled' ] == 0 ) ? "selected=\"selected\"" : ''; ?> ><?php _e( 'Disabled' , 'birthdays-widget' ); ?></option>
+                                        </select><br /><span class="description">
+                                            <?php _e( 'If enabled, the meta you select must be present in every WP User you set a birthday, otherwise default image will be displayed.', 'birthdays-widget' ); ?>
+                                        </span>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Meta value as image', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Meta value as image', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="birthdays_photo_meta_field">
+                                        <select name="birthdays_photo_meta_field">
+                                            <?php $meta_keys = self::birthday_get_filtered_meta();
+                                                foreach ( $meta_keys as $key ): ?>
+                                                    <?php if ( preg_match( '/bpid/', $key ) ):
+                                                        $buddy = explode( '-', $key );
+                                                        $value = $prefix . preg_replace( '/[^0-9.]+/', '', $buddy[0] );
+                                                        $name = $buddy[1]; ?>
+                                                        <option value="<?php echo $value; ?>" 
+                                                            <?php echo ( $prefix . $birthdays_settings[ 'photo_meta_field' ] == $value) ? "selected=\"selected\"" : ''; ?> ><?php echo $name . " (BuddyPress)"; ?>
+                                                        </option>
+                                                    <?php else: ?>
+                                                        <option value="<?php echo $key; ?>" <?php echo ( $birthdays_settings[ 'photo_meta_field' ] == $key ) ? "selected=\"selected\"" : ''; ?> >
+                                                            <?php echo $key; ?></option>
+                                                    <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <br /><?php _e( 'Select which WordPress User\'s meta value you like to be shown as User image in widget', 'birthdays-widget' ); ?>
                                     </label>
                                 </fieldset>
                             </td>
@@ -533,9 +630,9 @@
 
                 <div class="table ui-tabs-hide" id="birthdays-tab-access">
                     <p><?php _e( 'Here you can select which roles of your website can have access to page editing/viewing the birthday list.', 'birthdays-widget' ); ?></p>
-                    <?php foreach ( $supported_roles as $role ) : ?>
-                        <input type="checkbox" name="roles[]" value="<?php echo $role; ?>" 
-                            <?php if ( in_array( $role, $current_roles ) ) echo 'checked="checked"'; ?> />
+                    <?php foreach ( $supported_roles as $key => $role ) : ?>
+                        <input type="checkbox" name="roles[]" value="<?php echo $key; ?>" 
+                            <?php if ( in_array( $key, $current_roles ) ) echo 'checked="checked"'; ?> />
                         <?php echo $role.'<br />';
                     endforeach; ?>
                     <input type="hidden" name="birthdays_save" value="1" />
@@ -703,9 +800,19 @@
 
         public function birthday_get_filtered_meta() {
             global $wpdb;
-            $select = "SELECT distinct $wpdb->usermeta.meta_key FROM $wpdb->usermeta";
-            $tmp = $wpdb->get_results( $select );
             $meta_keys = array();
+
+            $table_name = $wpdb->prefix.'bp_xprofile_fields';
+            if( $wpdb->get_var("SHOW TABLES LIKE '$table_name'") == $table_name ) {
+                $select = "SELECT $table_name.name, $table_name.id FROM $table_name";
+                $tmp = $wpdb->get_results( $select );
+            }
+            foreach( $tmp as $key )
+                $meta_keys[] = "bpid".$key->id."-".$key->name;
+            
+            $table_name = $wpdb->prefix.'usermeta';
+            $select = "SELECT distinct $table_name.meta_key FROM $table_name";
+            $tmp = $wpdb->get_results( $select );
             foreach( $tmp as $key )
                 $meta_keys[] = $key->meta_key;
             $arr = array( 'rich_editing', 'comment_shortcuts', 'admin_color', 'use_ssl', 'show_admin_bar_front', 'wp_capabilities', 
@@ -745,7 +852,7 @@
             wp_enqueue_style ( 'birthdays-table-css' );
             wp_enqueue_style ( 'birthdays-css' );
 
-            if ( ! self::birthdays_user_edit() ) {
+            if ( ! current_user_can( 'birthdays_list' ) ) {
                 wp_die( __( 'You do not have sufficient permissions to access this page.', 'birthdays-widget' ) );
             }
 
@@ -845,12 +952,17 @@
                                     continue;
                                 }
                                 $birth_user = get_userdata( substr( $row->name, strlen( $prefix ) ) );
-                                $row->name = $birth_user->{$meta_key};
+                                if ( $birthdays_settings[ 'meta_field_bp' ] ) {
+                                    $query = 'field='.$birthdays_settings[ 'meta_field' ].'&user_id='.$birth_user->id;
+                                    $row->name = bp_get_profile_field_data( $query );
+                                } else {
+                                    $row->name = $birth_user->{$meta_key};
+                                }
                                 $row->email = $birth_user->user_email;
                                 //If user's image is drawn from Gravatar
                                 if ( $birthdays_settings[ 'wp_user_gravatar' ] ) {
                                     $row->image = self::get_avatar_url( $birth_user->user_email, 256 );
-                                    $image_name = $birth_user->{$meta_key};
+                                    $image_name = $row->name;
                                 } else {
                                     $row->image = wp_get_attachment_image_src( $row->image, 'full' );
                                     $row->image = $row->image[ 0 ];
@@ -981,7 +1093,7 @@
         }
 
         public function create_submenu_page_import() {
-            if ( ! self::birthdays_user_edit() ) {
+            if ( ! current_user_can( 'birthdays_list' ) ) {
                 wp_die( __( 'You do not have sufficient permissions to access this page.', 'birthdays-widget' ) );
             } ?>
             <div class="wrap">
@@ -1046,7 +1158,7 @@
         }
         
         public function create_submenu_page_export() {
-            if ( ! self::birthdays_user_edit() ) {
+            if ( ! current_user_can( 'manage_options' ) ) {
                 wp_die( __( 'You do not have sufficient permissions to access this page.', 'birthdays-widget' ) );
             }
             wp_enqueue_script( 'birthdays-script' );

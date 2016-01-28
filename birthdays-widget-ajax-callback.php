@@ -20,21 +20,38 @@ function birthdays_widget_check_for_birthdays( $all = false ) {
 
     $birthdays_settings = get_option( 'birthdays_settings' );
     $birthdays_settings = maybe_unserialize( $birthdays_settings );
-
-    //If birthdays for WordPress Users are drawn from a meta key of their profile
+    //var_dump( $birthdays_settings );
+    //If birthdays for WordPress Users are drawn from their profile
     if ( $birthdays_settings[ 'date_from_profile' ] ) {
         $birthday_date_meta_field = $birthdays_settings[ 'date_meta_field' ];
-        $meta_key = $birthdays_settings[ 'meta_field' ];
         $users = get_users();
         foreach ( $users as $user ) {
-            //If this meta key exists for this user, and it's his/her birthday
-            if ( isset( $user->{$birthday_date_meta_field} ) && !empty( $user->{$birthday_date_meta_field} ) ) {
-                $date = date( "-m-d", strtotime( str_replace('/', '-', $user->{$birthday_date_meta_field} ) ) );
-                if ( ( !$all && $date == date_i18n( '-m-d' ) ) || $all ) {
+            //If the birthday is a BuddyPress field, fetch it with bp_get_profile_field_data
+            if ( $birthdays_settings[ 'date_meta_field_bp' ] ) {
+                $query = 'field='.ucfirst($birthdays_settings[ 'date_meta_field' ]).'&user_id='.$user->id;
+                $date = bp_get_profile_field_data( $query );
+            } else {
+                if ( isset( $user->{$birthday_date_meta_field} ) && !empty( $user->{$birthday_date_meta_field} ) ) {
+                    $date = str_replace( '/', '-', $user->{$birthday_date_meta_field} );
+                } else {
+                    $date = NULL;
+                }
+            }
+            if ( $date != NULL ) {
+                $check_date = date( "-m-d", strtotime( $date ) );
+                //If this date exists for this user and it's his/her birthday, or if we want all birthdays
+                if ( ( !$all && $check_date == date_i18n( '-m-d' ) ) || $all ) {
                     $tmp_user = new stdClass();
-                    $tmp_user->name = $user->{$meta_key};
+                    //If the user's name is a BuddyPress field, fetch it with bp_get_profile_field_data
+                    if ( $birthdays_settings[ 'meta_field_bp' ] ) {
+                        $query = 'field='.$birthdays_settings[ 'meta_field' ].'&user_id='.$user->id;
+                        $tmp_user->name = bp_get_profile_field_data( $query );
+                    } else {
+                        $meta_key = $birthdays_settings[ 'meta_field' ];
+                        $tmp_user->name = $user->{$meta_key};
+                    }
                     $tmp_user->email = $user->user_email;
-                    $tmp_user->date = date( "Y-m-d", strtotime( str_replace('/', '-', $user->{$birthday_date_meta_field} ) ) );
+                    $tmp_user->date = date( "Y-m-d", strtotime( $date ) );
                     //If user's image is drawn from Gravatar
                     if ( $birthdays_settings[ 'wp_user_gravatar' ] ) {
                         $tmp_user->image = Birthdays_Widget_Settings::get_avatar_url( $tmp_user->email, 256 );
