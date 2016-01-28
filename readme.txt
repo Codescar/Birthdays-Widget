@@ -12,6 +12,7 @@ Requires at least: 3.5
 Tested up to: 4.3
 Stable tag: 1.7.8
 Text Domain: birthdays-widget
+Domain Path: /languages
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
