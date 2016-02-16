@@ -25,6 +25,7 @@
                 'wp_user_gravatar' => '0',
                 'meta_field' => 'display_name',
                 'meta_field_bp' => '0',
+                'date_format' => 'Y-m-d',
                 'comma' => '1',
                 'user_data' => '2',
                 'date_meta_field' => '',

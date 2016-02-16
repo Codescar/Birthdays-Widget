@@ -29,7 +29,7 @@ function birthdays_widget_check_for_birthdays( $all = false, $admin_table = fals
 
     $birthdays_settings = get_option( 'birthdays_settings' );
     $birthdays_settings = maybe_unserialize( $birthdays_settings );
-    $date_format = get_option( 'date_format' );
+    $date_format = $birthdays_settings[ 'date_format' ];
     $example = date_i18n( $date_format );
 
     //If birthdays for WordPress Users are drawn from their profile
@@ -54,8 +54,8 @@ function birthdays_widget_check_for_birthdays( $all = false, $admin_table = fals
                 } elseif ( $tmp_date2 ) {
                     $date = $tmp_date2;
                 } else {
-                    $plugin_errors->users[] = "WordPress User " . $user->user_login . " (ID: ". $user->id . ") has wrong birthday date in BuddyPress "
-                    . "expected format: " . $date_format . " (something like " . $example . "), but \"" . $date . "\" given.";
+                    $plugin_errors->users[] = "WordPress User " . $user->user_login . " (ID: ". $user->id . ") has wrong birthday date in BuddyPress.<br />"
+                    . "Expected format: " . $date_format . " (something like " . $example . "), but \"" . $date . "\" given.";
                     $date = NULL;
                 }
             } else {
@@ -71,8 +71,8 @@ function birthdays_widget_check_for_birthdays( $all = false, $admin_table = fals
                         $date = $tmp_date2;
                     } else {
                         $date = NULL;
-                        $plugin_errors->users[] = "WordPress User " . $user->user_login . " (ID: ". $user->id . ") has wrong birthday date metafield "
-                        . "expected format: " . $date_format . " (something like " . $example . "), but \"" . $user->{$birthday_date_meta_field} . "\" given.";
+                        $plugin_errors->users[] = "WordPress User " . $user->user_login . " (ID: ". $user->id . ") has wrong birthday date metafield.<br />"
+                        . "Expected format: " . $date_format . " (something like " . $example . "), but \"" . $user->{$birthday_date_meta_field} . "\" given.";
                     }
                 } else {
                     $date = NULL;

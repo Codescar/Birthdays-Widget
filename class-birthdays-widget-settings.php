@@ -179,6 +179,11 @@
                     } else {
                         $birthdays_settings[ 'meta_field' ] = 'display_name';
                     }
+                    if ( isset( $_POST[ 'birthdays_date_format' ] ) && !empty( $_POST[ 'birthdays_date_format' ] ) ) {
+                        $birthdays_settings[ 'date_format' ] = wp_strip_all_tags( $_POST[ 'birthdays_date_format' ] );
+                    } else {
+                        $birthdays_settings[ 'date_format' ] = 'Y-m-d';
+                    }
                     if ( isset( $_POST[ 'birthdays_photo_meta_field' ] ) ) {
                         $flag = strpos( $_POST[ 'birthdays_photo_meta_field' ], $prefix );
                         if ( $flag === 0 ) {
@@ -461,6 +466,32 @@
                                         <?php echo ($birthdays_settings[ 'user_data' ] == '2') ? "checked=\"checked\"" : ''; ?>/><br />
                                     <?php _e( 'Disabled birthday field for WordPress Users', 'birthdays-widget' ); ?>
                                 </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th id="birthday_date_format"><?php _e( 'Expected Date Format', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset><legend class="screen-reader-text"><span><?php _e( 'Expected Date Format', 'birthdays-widget' ); ?></span></legend>
+                            <?php
+                                $plugin_date = $birthdays_settings[ 'date_format' ];
+                                $date_formats = array_unique( apply_filters( 'date_formats', array( __( 'F j, Y' ), 'Y-m-d', 'm/d/Y', 'd/m/Y' ) ) );
+                                $custom = true;
+                                foreach ( $date_formats as $format ) {
+                                    echo "\t<label title='" . esc_attr($format) . "'><input type='radio' name='birthdays_date_format' value='" . esc_attr($format) . "'";
+                                    if ( $plugin_date === $format ) { // checked() uses "==" rather than "==="
+                                        echo " checked='checked'";
+                                        $custom = false;
+                                    }
+                                    echo ' /> ' . date_i18n( $format ) . "</label><br />\n";
+                                }
+                                echo '	<label><input type="radio" name="birthdays_date_format" id="date_format_custom_radio" value="\c\u\s\t\o\m"';
+                                checked( $custom );
+                                echo '/> ' . __( 'Custom:' ) . '<span class="screen-reader-text"> ' . __( 'enter a custom date format in the following field' ) . "</span></label>\n";
+                                echo '<label for="birthdays_date_format" class="screen-reader-text">' . __( 'Custom date format:' ) . '</label>'
+                                    .'<input type="text" name="birthdays_date_format" id="date_format_custom" value="' . esc_attr( $plugin_date ) . '" class="admin-small-text" />'
+                                    .'<span class="screen-reader-text">' . __( 'example:' ) . ' </span><span class="example"> ' . date_i18n( $plugin_date ) . "</span> <span class='spinner'></span>\n";
+                            ?>
+                                </fieldset>
                             </td>
                         </tr>
                         <tr>
@@ -876,7 +907,7 @@
 
             $birthdays_settings = get_option( 'birthdays_settings' );
             $birthdays_settings = maybe_unserialize( $birthdays_settings );
-            $date_format = get_option( 'date_format' );
+            $date_format = $birthdays_settings[ 'date_format' ];
             $users = birthdays_widget_check_for_birthdays( TRUE, TRUE );
 
             if ( ! current_user_can( 'birthdays_list' ) ) {
@@ -995,7 +1026,7 @@
                 $users = birthdays_widget_check_for_birthdays( TRUE, TRUE );
             }
             wp_enqueue_media();
-            $date_format = get_option( 'date_format' );
+            $date_format = $birthdays_settings[ 'date_format' ];
             $date_format_moment = wp_date_to_moment( $date_format, 'moment' );
             $date_format_noyear = wp_date_to_moment( $date_format, 'datepicker' );
             $date_format_noyear = str_replace( 'Y', '', $date_format_noyear);
@@ -1131,7 +1162,7 @@
                                   <input type="hidden" name="birthdays_add_new" value="1" />';
                         }
                         $wp_usr = false;
-                        $date_format = get_option( 'date_format' );
+                        $date_format = $birthdays_settings[ 'date_format' ];
                         $date_format_dtpicker = wp_date_to_moment( $date_format, 'datepicker' );
                         if ( $flag ) {
                             $tmp = "";

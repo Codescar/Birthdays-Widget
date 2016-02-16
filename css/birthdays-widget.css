@@ -147,3 +147,7 @@ ul.birthday_list > li {
     vertical-align: middle;
     margin: 0 2% 0 0;
 }
+
+.admin-small-text{
+    width: 70px;
+}

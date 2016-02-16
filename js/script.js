@@ -1,5 +1,6 @@
 jQuery( document ).ready( function() {
     var master_table;
+
     jQuery( '.delete_link' ).click( function() {
         var tmp = jQuery( '#delete-msg' ).html();
         return confirm( tmp );
@@ -59,7 +60,30 @@ jQuery( document ).ready( function() {
             jQuery( this ).toggleClass( 'button-primary focus' );
         } );
     }
-    
+
+    if ( jQuery( '#birthday_date_format' ).length >= 1 ) {
+        var ajaxurl = '/wp/wp-admin/admin-ajax.php';
+        jQuery("input[name='birthdays_date_format']").change( function() {
+            var format = jQuery(this);
+            format.siblings( '.spinner' ).addClass( 'is-active' );
+            jQuery.post(ajaxurl, {
+                    action: 'date_format_custom' == format.attr('name') ? 'date_format' : 'time_format',
+                    date : format.val()
+                }, function(d) { format.siblings( '.spinner' ).removeClass( 'is-active' ); format.siblings('.example').text(d); } );
+        });
+
+        jQuery("input[name='birthdays_date_format']").click(function(){
+            console.log( '1' );
+            if ( "date_format_custom_radio" != jQuery(this).attr("id") ) {
+                console.log( '2' );
+                jQuery( "#date_format_custom" ).val( jQuery( this ).val() ).siblings( '.example' ).text( jQuery( this ).parent( 'label' ).text() );
+            }
+        });
+        jQuery("#date_format_custom").focus(function(){
+            jQuery( '#date_format_custom_radio' ).prop( 'checked', true );
+        });
+    }
+
     if ( jQuery( '.bw-image' ).length >= 1 ) {
         // Uploading files
         var file_frame;
