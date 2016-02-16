@@ -6,8 +6,8 @@ add_action( 'wp_ajax_nopriv_get_birthdays', 'birthdays_widget_callback' );
 //admnin ajax
 add_action( 'wp_ajax_get_birthdays_export_file', 'get_birthdays_export_file_callback' );
 
-function birthdays_widget_check_for_birthdays( $all = false ) {
-    global $wpdb;
+function birthdays_widget_check_for_birthdays( $all = false, $admin_table = false ) {
+    global $wpdb, $plugin_errors;
 
     $table_name = $wpdb->prefix . "birthdays";
     if ( $all ) {
@@ -18,9 +18,20 @@ function birthdays_widget_check_for_birthdays( $all = false ) {
         $results = $wpdb->get_results( $wpdb->prepare( $query, date_i18n( '-m-d' ) ) );
     }
 
+    if ( !$admin_table ) {
+        foreach ( $results as $key => $row ) {
+            $tmp_date = date_create_from_format( 'Y-m-d', $row->date );
+            if ( $tmp_date ) {
+                $results[ $key ]->date = $tmp_date->getTimestamp();
+            }
+        }
+    }
+
     $birthdays_settings = get_option( 'birthdays_settings' );
     $birthdays_settings = maybe_unserialize( $birthdays_settings );
-    //var_dump( $birthdays_settings );
+    $date_format = get_option( 'date_format' );
+    $example = date_i18n( $date_format );
+
     //If birthdays for WordPress Users are drawn from their profile
     if ( $birthdays_settings[ 'date_from_profile' ] ) {
         $birthday_date_meta_field = $birthdays_settings[ 'date_meta_field' ];
@@ -28,17 +39,47 @@ function birthdays_widget_check_for_birthdays( $all = false ) {
         foreach ( $users as $user ) {
             //If the birthday is a BuddyPress field, fetch it with bp_get_profile_field_data
             if ( $birthdays_settings[ 'date_meta_field_bp' ] ) {
-                $query = 'field='.ucfirst($birthdays_settings[ 'date_meta_field' ]).'&user_id='.$user->id;
+                $query = 'field='.ucfirst( $birthdays_settings[ 'date_meta_field' ] ).'&user_id='.$user->id;
                 $date = bp_get_profile_field_data( $query );
+                if( empty( $date ) ) {
+                    continue;
+                }
+                $tmp_date = date_create_from_format( $date_format, $date );
+                $tmp_date2 = get_international_date( $date );
+                if ( $tmp_date ) {
+                    $date = $tmp_date->getTimestamp();
+                } elseif ( $tmp_date2 == 'intl' ) {
+                    $plugin_errors->int_library = 'Internationalization Functions needed, please install PHP\'s extension';
+                    $date = NULL;
+                } elseif ( $tmp_date2 ) {
+                    $date = $tmp_date2;
+                } else {
+                    $plugin_errors->users[] = "WordPress User " . $user->user_login . " (ID: ". $user->id . ") has wrong birthday date in BuddyPress "
+                    . "expected format: " . $date_format . " (something like " . $example . "), but \"" . $date . "\" given.";
+                    $date = NULL;
+                }
             } else {
                 if ( isset( $user->{$birthday_date_meta_field} ) && !empty( $user->{$birthday_date_meta_field} ) ) {
-                    $date = str_replace( '/', '-', $user->{$birthday_date_meta_field} );
+                    $tmp_date = date_create_from_format( $date_format, $user->{$birthday_date_meta_field} );
+                    $tmp_date2 = get_international_date( $user->{$birthday_date_meta_field} );
+                    if ( $tmp_date ) {
+                        $date = $tmp_date->getTimestamp();
+                    } elseif ( $tmp_date2 == 'intl' ) {
+                        $plugin_errors->int_library = 'Internationalization Functions needed, please install PHP\'s extension';
+                        $date = NULL;
+                    } elseif ( $tmp_date2 ) {
+                        $date = $tmp_date2;
+                    } else {
+                        $date = NULL;
+                        $plugin_errors->users[] = "WordPress User " . $user->user_login . " (ID: ". $user->id . ") has wrong birthday date metafield "
+                        . "expected format: " . $date_format . " (something like " . $example . "), but \"" . $user->{$birthday_date_meta_field} . "\" given.";
+                    }
                 } else {
                     $date = NULL;
                 }
             }
             if ( $date != NULL ) {
-                $check_date = date( "-m-d", strtotime( $date ) );
+                $check_date = date( "-m-d", $date );
                 //If this date exists for this user and it's his/her birthday, or if we want all birthdays
                 if ( ( !$all && $check_date == date_i18n( '-m-d' ) ) || $all ) {
                     $tmp_user = new stdClass();
@@ -51,10 +92,23 @@ function birthdays_widget_check_for_birthdays( $all = false ) {
                         $tmp_user->name = $user->{$meta_key};
                     }
                     $tmp_user->email = $user->user_email;
-                    $tmp_user->date = date( "Y-m-d", strtotime( $date ) );
+                    if ( $admin_table ) {
+                        $tmp_user->date = date_i18n( $date_format, $date );
+                    } else {
+                        $tmp_user->date = $date;
+                    }
+                    $tmp_user->wp_user = $user->id;
                     //If user's image is drawn from Gravatar
                     if ( $birthdays_settings[ 'wp_user_gravatar' ] ) {
                         $tmp_user->image = Birthdays_Widget_Settings::get_avatar_url( $tmp_user->email, 256 );
+                    } else if ( $birthdays_settings[ 'photo_meta_field_enabled' ] ) {
+                        if ( $birthdays_settings[ 'photo_meta_field_bp' ] ) {
+                            $query = 'field='.$birthdays_settings[ 'photo_meta_field' ].'&user_id='.$user->id;
+                            $tmp_user->image = bp_get_profile_field_data( $query );
+                        } else {
+                            $meta_key = $birthdays_settings[ 'photo_meta_field' ];
+                            $tmp_user->image = $user->{$meta_key};
+                        }
                     }
                     array_push( $results, $tmp_user );
                 }

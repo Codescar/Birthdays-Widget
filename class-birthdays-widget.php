@@ -94,9 +94,10 @@ class Birthdays_Widget extends WP_Widget {
     public static function organize_days( $filtered ) {
         $days_organized = array();
         foreach ( $filtered as $user_birt ) {
+            $tmp = date( 'Y-m-d', $user_birt->date );
             if( !isset( $user_birt->date ) )
                 var_dump( $user_birt );
-            $user_birt->tmp = substr( $user_birt->date, 5 );
+            $user_birt->tmp = substr( $tmp, 5 );
             if ( !isset ( $days_organized[ $user_birt->tmp ] ) ) {
                 $days_organized[ $user_birt->tmp ] = array();
             }
@@ -203,7 +204,6 @@ class Birthdays_Widget extends WP_Widget {
                     $row->image = $default_user_image_src;
                 }
                 array_push( $filtered, $row );
-                uasort( $filtered, "cmp" );
             }
             switch ( $instance[ 'template' ] ) {
                 case 0:
@@ -211,6 +211,7 @@ class Birthdays_Widget extends WP_Widget {
                     wp_enqueue_script( 'birthdays-script' );
                     wp_enqueue_style ( 'jquery-style' );
                     $flag = false;
+                    uasort( $filtered, "cmp" );
                     foreach ( $filtered as $row ) {
                         $html .= '<div class="birthday_element birthday_name">';
                         if ( $flag && $birthdays_settings[ 'comma' ] ) {
@@ -219,20 +220,21 @@ class Birthdays_Widget extends WP_Widget {
                             $flag = true;
                         }
                         $html .= $row->name;
-                        $age = date( "Y" ) - date( "Y", strtotime( $row->date ) );
+                        $age = date( "Y" ) - date( "Y", $row->date );
                         $tmp_class = "";
                         if ( $birthdays_settings[ 'user_image_enabled' ] ) {
                             $tmp_class = 'class="user_image_enabled"';
                         }
                         $html .= '<a href="' . $row->image . '" target="_blank" ' . $tmp_class . ' ';
-                        if( $birthdays_settings[ 'user_age' ] ) {
-                            $html .= 'data-age="' . $age . ' ' . __( 'years old', 'birthdays-widget' ) . '" ';
+                        if( $birthdays_settings[ 'user_verbiage' ] ) {
+                            $html .= 'data-age="' . $age . ' ' . $birthdays_settings[ 'user_verbiage_text' ] . '" ';
                         }
                         $html .= '></a></div>';
                     }
                     break;
                 case 1:
                     $html .= '<ul class="birthday_list">';
+                    uasort( $filtered, "cmp" );
                         foreach ( $filtered as $row ) {
                             $html .= "<li class=\"birthday_name\">";
                             if ( $birthdays_settings[ 'user_image_enabled' ] ) {
@@ -240,9 +242,9 @@ class Birthdays_Widget extends WP_Widget {
                                     src=\"{$row->image}\" class=\"birthday_list_image\" />";
                             }
                             $html .= "{$row->name}";
-                            if( $birthdays_settings[ 'user_age' ] ) {
-                                $age = date( "Y" ) - date( "Y", strtotime( $row->date ) );
-                                $html .= '<span class="birthday_age"> ' . $age . ' ' . __( 'years old', 'birthdays-widget' ) . '</span>';
+                            if( $birthdays_settings[ 'user_verbiage' ] ) {
+                                $age = date( "Y" ) - date( "Y", $row->date );
+                                $html .= '<span class="birthday_age"> ' . $age . ' ' . $birthdays_settings[ 'user_verbiage_text' ] . '</span>';
                             }
                             $html .= "</li>";
                         }
@@ -254,6 +256,7 @@ class Birthdays_Widget extends WP_Widget {
                         break;
                     }
                     define( 'CALENDAR' , true );
+                    //uasort( $filtered, "cmp" );
                     $days_organized = self::organize_days( $filtered );
                     wp_enqueue_style( 'birthdays-bootstrap-css' );
                     wp_enqueue_style( 'birthdays-calendar-css' );
@@ -275,6 +278,7 @@ class Birthdays_Widget extends WP_Widget {
                             $months[ $i ] .= "ς";
                         }
                     }
+                    //var_dump ( $days_organized );
                     $months = implode( '", "', $months );
                     $months = '[ "'.$months.'" ]';
                     $week_days = implode( '", "', $week_days );
@@ -286,9 +290,9 @@ class Birthdays_Widget extends WP_Widget {
                             var events = [ ';
                                 $flag = false;
                                 foreach ( $days_organized as $day ) {
-                                    $html .= '{ date: "' . date( 'j/n', strtotime( $day[ 0 ]->date ) ) . '/' . date( 'Y' ) . '",';
+                                    $html .= '{ date: "' . date( 'j/n', $day[ 0 ]->date ) . '/' . date( 'Y' ) . '",';
                                     $html .= 'title: \'' . $birthdays_settings[ 'wish' ] . '\',';
-                                    if ( date( 'm-d', strtotime( $day[ 0 ]->date ) ) == date( 'm-d' ) ) {
+                                    if ( date( 'm-d', $day[ 0 ]->date ) == date( 'm-d' ) ) {
                                         $color = $birthdays_settings[ 'color_current_day' ];
                                     } else if ( $flag && $birthdays_settings[ 'second_color' ] ) {
                                         $color = $birthdays_settings[ 'color_two' ];
@@ -305,9 +309,12 @@ class Birthdays_Widget extends WP_Widget {
                                             $html .= '<img src="' . $user->image . '" width="150" />';
                                         }
                                         $html .= '<div class="birthday_center birthday_name">' . $user->name;
-                                        if( $birthdays_settings[ 'user_age' ] ) {
-                                            $age = date( "Y" ) - date( "Y", strtotime( $user->date ) );
-                                            $html .= '<span class="birthday_age"> ' . $age . ' ' . __( 'years old', 'birthdays-widget' ) . '</span>';
+                                        if( $birthdays_settings[ 'user_verbiage' ] ) {
+                                            $age = date( "Y" ) - date( "Y", $user->date );
+                                            $html .= '<span class="birthday_age"> ' . $age . ' ' . $birthdays_settings[ 'user_verbiage_text' ] . '</span>';
+                                            if( $user->name == "Demo" ){
+                                                ;//var_dump( $age , $user, date( "Y", $user->date ), date( 'Y-d-m', $user->date ) );die();
+                                            }
                                         }
                                         $html .= '</div>';
                                     }
@@ -429,9 +436,9 @@ class Birthdays_Widget extends WP_Widget {
                         foreach ( $final_days as $day ) {
                             if ( !$day )
                                 continue;
-                            $timestamp_date = strtotime( $day[ 0 ]->date );
-                            $html_date = date_i18n( 'j F', $timestamp_date );
-                            $date1 = new DateTime( date( 'j-m', $timestamp_date ). '-' .$year );
+                            uasort( $day, "cmp" );
+                            $html_date = date_i18n( 'j F', $day[ 0 ]->date );
+                            $date1 = new DateTime( date( 'j-m', $day[ 0 ]->date ). '-' .$year );
                             if ( $birthdays_settings[ 'upcoming_year_seperate' ] && !$year_passed ) {
                                 if ( $date1 < $today && $date1 != $today ) {
                                     $tmp = $year + 1;
@@ -455,14 +462,14 @@ class Birthdays_Widget extends WP_Widget {
                                     $flag = true;
                                 }
                                 $html .= $row->name;
-                                $age = date( "Y" ) - date( "Y", strtotime( $row->date ) );
+                                $age = date( "Y" ) - date( "Y", $row->date );
                                 if ( $birthdays_settings[ 'user_image_enabled' ] ) {
                                     $html .= '<a href="' . $row->image . '" target="_blank" class="user_image_enabled" ';
                                 } else {
                                     $html .= '<a href="#" target="_blank" ';
                                 }
-                                if( $birthdays_settings[ 'user_age' ] ) {
-                                    $html .= 'data-age="' . $age . ' ' . __( 'years old', 'birthdays-widget' ) . '" ';
+                                if( $birthdays_settings[ 'user_verbiage' ] ) {
+                                    $html .= 'data-age="' . $age . ' ' . $birthdays_settings[ 'user_verbiage_text' ] . '" ';
                                 }
                                 $html .= '></a></div>';
                             }
@@ -471,6 +478,7 @@ class Birthdays_Widget extends WP_Widget {
                     break;
             }
         $html .= '</div>';
+        //birthdays_email_notifier();
         return $html;
     }
 

@@ -4,18 +4,18 @@
     Plugin URI: https://wordpress.org/plugins/birthdays-widget/
     Description: Birthdays widget plugin produces a widget which displays a customizable happy birthday image and wish to your clients/users.
     Author: lion2486, Sudavar
-    Version: 1.7.8
+    Version: 1.7.12
     Author URI: http://www.codescar.eu 
     Contributors: lion2486, Sudavar
-    Tags: widget, birthdays, custom birthday list, WordPress User birthday, birthday calendar
+    Tags: widget, birthdays, custom birthday list, WordPress User birthday, birthday calendar, BuddyPress birthday, users birthday, all years birthdays, upcoming birthdays
     Requires at least: 3.5
-    Tested up to: 4.3
+    Tested up to: 4.4.2
     Text Domain: birthdays-widget
     License: GPLv2
     License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-    define( 'BW', '1.7.8' );
+    define( 'BW', '1.7.12' );
     require_once dirname( __FILE__ ) . '/class-birthdays-widget.php';
     require_once dirname( __FILE__ ) . '/class-birthdays-widget-installer.php';
     require_once dirname( __FILE__ ) . '/class-birthdays-widget-settings.php';  
@@ -36,12 +36,20 @@
 
     // register our scripts
     function birthdays_extra_files() {
-        wp_register_script( 'birthdays-script', plugins_url( 'js/script.js', __FILE__ ), array( 'jquery' ), BW );
+        wp_register_script( 'birthdays-script', plugins_url( 'js/script.js', __FILE__ ), array( 'jquery' ), BW, true );
         wp_register_script( 'birthdays-cal', plugins_url( 'js/cal.js', __FILE__ ), array( 'jquery' ), BW );
         wp_register_script( 'birthdays-calendar-js', plugins_url( 'js/bic_calendar.min.js', __FILE__ ), array( 'jquery' ), BW );
         wp_register_script( 'birthdays-bootstrap-js', plugins_url( 'js/bootstrap.min.js', __FILE__ ), array( 'jquery' ), BW );
-        wp_register_script( 'birthdays-table-js', plugins_url( 'js/jquery.dataTables.min.js', __FILE__ ), array( 'jquery' ), BW );
-
+        wp_register_script( 'datatables', plugins_url( 'js/jquery.dataTables.min.js', __FILE__ ), array( 'jquery' ), BW );
+        wp_register_script( 'moment', plugins_url( 'js/moment.min.js', __FILE__ ), array( 'jquery' ), BW );
+        wp_register_script( 'birthdays-table-datetime-js', plugins_url( 'js/datetime-moment.js', __FILE__ ), array( 'jquery' ), BW, true );
+        
+        $handle = 'datatables';
+        $list = 'registered';
+        if ( wp_script_is( $handle, $list ) ) {
+            wp_deregister_script( $handle );
+        }
+        wp_register_script( 'datatables', plugins_url( 'js/jquery.dataTables.min.js', __FILE__ ), array( 'jquery' ), 'BW' );
         wp_register_style( 'jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css', array(), BW );
         wp_register_style( 'birthdays-calendar-css', plugins_url( 'css/bic_calendar.css', __FILE__ ), array(), BW );
         wp_register_style( 'birthdays-bootstrap-css', plugins_url( 'css/bootstrap.min.css', __FILE__ ), array(), BW );
@@ -88,6 +96,9 @@
         wp_enqueue_script( 'jquery-ui-datepicker' );
         wp_enqueue_script( 'birthdays-script' );
         wp_enqueue_style( 'jquery-style' );
+
+        $date_format_wp = get_option( 'date_format' );
+        $date_format = wp_date_to_moment( $date_format_wp, 'datepicker' );
         $first_name = ( isset( $_POST['first_name'] ) ) ? $_POST['first_name']: '';
         $date = ( isset( $_POST['birthday_date'] ) ) ? $_POST['birthday_date']: ''; ?>
         <p>
@@ -96,7 +107,8 @@
                     value="<?php echo esc_attr(stripslashes($first_name)); ?>" /></label>
             <label for="birthday_date"><?php _e( 'User Birthday', 'birthdays-widget' ); ?></label>
                 <input  type="text" id="birthday_date" name="birthday_date" 
-                    value="<?php if ( $date != '' ) echo date_i18n( 'd-m-Y', strtotime( $date ) ); ?>" />
+                    value="<?php if ( $date != '' ) echo date_i18n( $date_format_wp, strtotime( $date ) ); ?>"
+                    data-date-format="<?php echo $date_format; ?>" />
         </p> <?php
     }
 
@@ -129,6 +141,9 @@
         wp_enqueue_script( 'birthdays-script' );
         wp_enqueue_style( 'jquery-style' );
 
+        $date_format_wp = get_option( 'date_format' );
+        $date_format = wp_date_to_moment( $date_format_wp, 'datepicker' );
+
         if ( isset($_GET['user_id'] ) )
             $user_id = $_GET['user_id'];
         else
@@ -150,37 +165,44 @@
             } else {
                 $date = $results[ 0 ]->date;
             }
-        }
-        ?>
+        } ?>
             <table class="form-table">
                 <tr>
                     <th><label for="birthday_date"><?php _e( 'User Birthday', 'birthdays-widget' ); ?></label></th>
-                    <td><input type="text" size="10" id="birthday_date" name="birthday_date" 
+                    <td><input type="text" size="18" id="birthday_date" name="birthday_date" placeholder="<?php echo date_i18n( $date_format_wp ); ?>"
                         <?php if ( isset( $date ) ) {
-                                echo 'value="' . date_i18n( 'd-m-Y', strtotime( $date ) ) . '" />';
+                                $tmp_date = date_create_from_format( 'Y-m-d', $date );
+                                $date = $tmp_date->getTimestamp();
+                                echo 'value="' . date_i18n( $date_format_wp, $date ) . '" data-date-format="' . $date_format . '" />';
                               } else {
-                                echo 'value="" />'; 
+                                echo 'value="" data-date-format="' . $date_format . '" />'; 
                         } ?>
                         <br /><span class="description"><?php _e( 'Please enter user\'s birthday requested by Birthdays Widget', 'birthdays-widget' ); ?></span>
 						<input type="hidden" name="birthday_usr_id" value="<?php echo $user_id; ?>" />
         <?php 
-        if ( isset( $id ) )
+        if ( isset( $id ) ) {
             echo '<input type="hidden" name="birthday_id" value="' . $id . '" />';
+            echo '</td></tr><tr><th><label for="birthday_id_delete">' . __( 'Delete Birthday', 'birthdays-widget' ) . '</label></th>'
+                .'<td><input type="radio" name="birthday_id_delete" value="1"> Yes</td>';
+        }
         echo '      </td> 
                 </tr></table>';
-        wp_enqueue_script( 'birthdays-widget-script', plugins_url( 'date-picker.js', __FILE__ ), array( 'jquery' ) );
     }
 
 	//2. Validate and update field in WP user structure
     function birthdays_widget_update_profile() {
         global $wpdb;
-        
-        if ( empty ( $_POST[ 'birthday_date' ] ) )
+        $date_format = get_option( 'date_format' );
+
+        if ( !isset( $_POST[ 'birthday_id' ] ) && empty( $_POST[ 'birthday_date' ] ) )
             return;
-        
+
+        if ( isset( $_POST[ 'birthday_id_delete' ] ) && $_POST[ 'birthday_id_delete' ] == 1 ) {
+            birthdays_delete_user( $_POST[ 'birthday_usr_id' ] );
+            return;
+        }
         $user_id = $_POST[ 'birthday_usr_id' ];
         $value = $_POST[ 'birthday_date' ];
-
 		//Shall now save it in our database table
         $birth_user = "cs_birth_widg_" . $user_id;
         $table_name = $wpdb->prefix . 'birthdays';
@@ -188,15 +210,24 @@
         if ( !isset( $_POST[ 'birthday_id' ] ) ) {
             //add the new entry
             $insert_query = "INSERT INTO $table_name (name, date) VALUES (%s, %s);";
-            if ( $wpdb->query( $wpdb->prepare( $insert_query, $birth_user, date( 'Y-m-d' , strtotime($value) ) ) ) != 1 )
+            $tmp_date = date_create_from_format( $date_format, $value );
+            if ( $tmp_date ) {
+                $value = $tmp_date->format( 'Y-m-d' );
+            }
+            if ( $wpdb->query( $wpdb->prepare( $insert_query, $birth_user, $value ) ) != 1 )
                 echo '<div id="message" class="error"><p>Query error</p></div>';
             $birth_id = $wpdb->insert_id;
             update_user_meta( $user_id, 'birthday_id', $birth_id, '' );
         } else {
             //update the existing entry
             $update_query = "UPDATE $table_name SET date = %s, name = %s WHERE id = %d;";
-            if ( $wpdb->query( $wpdb->prepare( $update_query, date( 'Y-m-d' , strtotime($value) ), $birth_user, $_POST[ 'birthday_id' ] ) ) != 1 )
+            $tmp_date = date_create_from_format( $date_format, $value );
+            if ( $tmp_date ) {
+                $value = $tmp_date->format( 'Y-m-d' );
+            }
+            if ( $wpdb->query( $wpdb->prepare( $update_query, $value, $birth_user, $_POST[ 'birthday_id' ] ) ) != 1 ) {
                 echo '<div id="message" class="error"><p>Query error</p></div>';
+            }
         }
     }
     
@@ -290,3 +321,126 @@
     function cmp($a, $b) {
         return strcasecmp($a->name, $b->name);
     }
+
+    function wp_date_to_moment( $format, $type ) {
+        $count = 1;
+        if( $type == 'moment' ) {
+            $format = str_replace( 'I', '', $format, $count );
+            $format = str_replace( 'D', '', $format, $count );
+
+            $format = str_replace( 'jS', 'Do', $format, $count );
+            $format = str_replace( 'j', 'D', $format, $count );
+            $format = str_replace( 'd', 'DD', $format, $count );
+
+            $format = str_replace( 'M', 'MMM', $format, $count );
+            $format = str_replace( 'm', 'MM', $format, $count );
+            $format = str_replace( 'n', 'M', $format, $count );
+            $format = str_replace( 'F', 'MMMM', $format, $count );
+
+            $format = str_replace( 'Y', 'YYYY', $format, $count );
+            return $format;
+        } else if ( $type == 'datepicker' ) {
+            //var_dump( $format );
+            $format = str_replace( 'd', 'dd', $format, $count );
+            $format = str_replace( 'jS', 'dd', $format, $count );
+            $format = str_replace( 'j', 'dd', $format, $count );
+
+            $format = str_replace( 'M', 'M', $format, $count );
+            $format = str_replace( 'm', 'mm', $format, $count );
+            $format = str_replace( 'n', 'mm', $format, $count );
+            $format = str_replace( 'F', 'MM', $format, $count );
+
+            $format = str_replace( 'Y', 'yy', $format, $count );
+            //var_dump( $format );
+            return $format;
+        } else if ( $type == 'international_date' ) {
+            //var_dump( $format );
+            $format = str_replace( 'd', 'dd', $format, $count );
+            $format = str_replace( 'jS', 'dd', $format, $count );
+            $format = str_replace( 'j', 'dd', $format, $count );
+
+            $format = str_replace( 'M', 'MMM', $format, $count );
+            $format = str_replace( 'm', 'MM', $format, $count );
+            $format = str_replace( 'n', 'M', $format, $count );
+            $format = str_replace( 'F', 'MMMM', $format, $count );
+
+            $format = str_replace( 'Y', 'yyyy', $format, $count );
+
+            return $format;
+        }
+    }
+
+    function get_international_date( $date ) {
+        $format = wp_date_to_moment( get_option( 'date_format' ), "international_date" );
+        if ( !class_exists( "IntlDateFormatter" ) ) {
+            return 'intl';
+        }
+        $formatter = new IntlDateFormatter(
+            get_locale(),
+            IntlDateFormatter::LONG,
+            IntlDateFormatter::LONG,
+            'GMT',
+            IntlDateFormatter::GREGORIAN,
+            $format
+        );
+        $value = $formatter->parse( $date );
+        unset( $formatter );
+        return $value;
+    }
+    
+    register_activation_hook( __FILE__, 'my_activation_func' ); 
+    function my_activation_func() {
+        file_put_contents(__DIR__.'/my_loggg.txt', ob_get_contents());
+    }
+    /* 
+    // Scheduled Action Hook
+    function birthdays_email_notifier( ) {
+        $birthdays_settings = get_option( 'birthdays_settings' );
+        $birthdays_settings = maybe_unserialize( $birthdays_settings );
+        $birthdays = birthdays_widget_check_for_birthdays( false );
+        $email_text = __( 'Hello ###USERNAME###,
+         
+        We at  would like to wish you a happy birthday today!
+         
+        Regards,
+        All at ###SITENAME###
+        ###SITEURL###' );
+
+        //TODO check for filters
+        //$content = apply_filters( 'new_admin_email_content', $email_text, $new_admin_email );
+        $content = $email_text;
+        $prefix = "cs_birth_widg_";
+        foreach ( $birthdays as $row ) {
+            //var_dump ( $row );
+            if ( !isset( $row->email ) || empty( $row->email ) ) {
+                continue;
+            }
+            $wp_usr = strpos( $row->name, $prefix );
+            if ( $wp_usr !== false ) {
+                //Get the ID from the record, which is of the format $prefixID and get the user's data
+                $birth_user = get_userdata( substr( $row->name, strlen( $prefix ) ) );
+                //If birthdays are enabled for WP Users, draw user's name from the corresponding meta key
+                if ( $birthdays_settings[ 'meta_field_bp' ] ) {
+                    $query = 'field='.$birthdays_settings[ 'meta_field' ].'&user_id='.$birth_user->id;
+                    $row->name = bp_get_profile_field_data( $query );
+                } else if ( $birthdays_settings[ 'profile_page' ] && !$birthdays_settings[ 'meta_field_bp' ] ) {
+                    $row->name = $birth_user->{$meta_key};
+                }
+            }
+            $email_content = str_replace( '###USERNAME###', ucfirst( $row->name ), $content );
+            $email_content = str_replace( '###SITENAME###', get_site_option( 'site_name' ), $email_content );
+            $email_content = str_replace( '###SITEURL###', network_home_url(), $email_content );
+            //echo "<br /><br />";
+            //var_dump ( $email_content );
+            //echo "<br /><br />";
+            wp_mail( $birth_user->email, sprintf( __( '[%s] - Happy Birtday' ), wp_specialchars_decode( get_option( 'blogname' ) ) ), $email_content );
+        }
+    }
+
+    // Schedule Cron Job Event
+    function birthdays_email() {
+        if ( ! wp_next_scheduled( 'birthdays_email_notifier' ) ) {
+            wp_schedule_event( current_time( 'timestamp' ), 'daily', 'birthdays_email_notifier' );
+        }
+    }
+    add_action( 'wp', 'birthdays_email' ); */

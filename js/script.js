@@ -1,4 +1,5 @@
 jQuery( document ).ready( function() {
+    var master_table;
     jQuery( '.delete_link' ).click( function() {
         var tmp = jQuery( '#delete-msg' ).html();
         return confirm( tmp );
@@ -8,15 +9,18 @@ jQuery( document ).ready( function() {
             changeMonth: true,
             changeYear: true,
             maxDate: "+0D",
-            "dateFormat" : "dd-mm-yy"
+            "dateFormat" : jQuery( '#birthday_date' ).data( 'date-format' )
         } );
         jQuery( '#ui-datepicker-div' ).hide();
     }
     if ( jQuery( '#birthday_table' ).length >= 1 ) {
-        jQuery( '#birthday_table' ).DataTable( {
+        jQuery.fn.dataTable.moment( jQuery( '#birthday_table' ).data( 'date-format' ) );
+        master_table = jQuery( '#birthday_table' ).DataTable( {
             stateSave: true,
             "lengthMenu": [ 15, 30, 100 ],
-            "columnDefs": [ { "orderable": false, "targets": 3 } ],
+            "columnDefs": [ 
+                { "orderable": false, "targets": [3, 4] }
+            ],
             "stripeClasses": [ 'alternate', '' ],
             "processing": true,
             "deferRender": true
@@ -36,6 +40,23 @@ jQuery( document ).ready( function() {
             open: function (event, ui) {
                 ui.tooltip.addClass( 'birthday-list-tooltip' );
             }
+        } );
+        jQuery( '.show_today' ).click( function() {
+            if ( jQuery( this ).hasClass( 'button-primary focus' ) ) {
+                master_table.columns(2).search('').draw();
+            } else {
+                var today = jQuery.datepicker.formatDate( jQuery( '#birthday_table' ).data( 'date-format-noyear' ), new Date() );
+                master_table.columns(2).search( today ).draw();
+            }
+            jQuery( this ).toggleClass( 'button-primary focus' );
+        } );
+        jQuery( '.show_wp_users' ).click( function() {
+            if ( jQuery( this ).hasClass( 'button-primary focus' ) ) {
+                master_table.columns(5).search('').draw();
+            } else {
+                master_table.columns(5).search('WP').draw();
+            }
+            jQuery( this ).toggleClass( 'button-primary focus' );
         } );
     }
     
