@@ -49,13 +49,14 @@ function birthdays_widget_check_for_birthdays( $all = false, $admin_table = fals
                 if ( $tmp_date ) {
                     $date = $tmp_date->getTimestamp();
                 } elseif ( $tmp_date2 == 'intl' ) {
-                    $plugin_errors->int_library = 'Internationalization Functions needed, please install PHP\'s extension';
+                    $plugin_errors->int_library = __( 'Internationalization Functions needed, please install PHP\'s extension',  'birthdays-widget' );
                     $date = NULL;
                 } elseif ( $tmp_date2 ) {
                     $date = $tmp_date2;
                 } else {
-                    $plugin_errors->users[] = "WordPress User " . $user->user_login . " (ID: ". $user->id . ") has wrong birthday date in BuddyPress.<br />"
-                    . "Expected format: " . $date_format . " (something like " . $example . "), but \"" . $date . "\" given.";
+                    $plugin_errors->users[] = __( 'WordPress User',  'birthdays-widget' ) . " " . $user->user_login . " (ID: ". $user->id . ") " . __( 'has wrong birthday date in BuddyPress',  'birthdays-widget' ) . ".<br />"
+                    . __( ' Expected format:',  'birthdays-widget' ) . " " . $date_format . " (" .  __( 'something like',  'birthdays-widget' ) . " "
+                    . $example . "), " . __( 'but',  'birthdays-widget' ) . " \"" . $date . "\" " . __( 'given',  'birthdays-widget' ) . ".";
                     $date = NULL;
                 }
             } else {
@@ -65,14 +66,15 @@ function birthdays_widget_check_for_birthdays( $all = false, $admin_table = fals
                     if ( $tmp_date ) {
                         $date = $tmp_date->getTimestamp();
                     } elseif ( $tmp_date2 == 'intl' ) {
-                        $plugin_errors->int_library = 'Internationalization Functions needed, please install PHP\'s extension';
+                        $plugin_errors->int_library = __( 'Internationalization Functions needed, please install PHP\'s extension',  'birthdays-widget' );
                         $date = NULL;
                     } elseif ( $tmp_date2 ) {
                         $date = $tmp_date2;
                     } else {
                         $date = NULL;
-                        $plugin_errors->users[] = "WordPress User " . $user->user_login . " (ID: ". $user->id . ") has wrong birthday date metafield.<br />"
-                        . "Expected format: " . $date_format . " (something like " . $example . "), but \"" . $user->{$birthday_date_meta_field} . "\" given.";
+                        $plugin_errors->users[] = __( 'WordPress User',  'birthdays-widget' ) . " " . $user->user_login . " (ID: ". $user->id . ") " . __( 'has wrong birthday date metafield',  'birthdays-widget' ) . ".<br />"
+                        . __( ' Expected format:',  'birthdays-widget' ) . " " . $date_format . " (" . __( 'something like',  'birthdays-widget' ) . " "
+                        . $example . "), " . __( 'but',  'birthdays-widget' ) . " \"" . $user->{$birthday_date_meta_field} . "\" " . __( 'given',  'birthdays-widget' ) . ".";
                     }
                 } else {
                     $date = NULL;

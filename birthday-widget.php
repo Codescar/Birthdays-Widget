@@ -4,7 +4,7 @@
     Plugin URI: https://wordpress.org/plugins/birthdays-widget/
     Description: Birthdays widget plugin produces a widget which displays a customizable happy birthday image and wish to your clients/users.
     Author: lion2486, Sudavar
-    Version: 1.7.12
+    Version: 1.7.13
     Author URI: http://www.codescar.eu 
     Contributors: lion2486, Sudavar
     Tags: widget, birthdays, custom birthday list, WordPress User birthday, birthday calendar, BuddyPress birthday, users birthday, all years birthdays, upcoming birthdays
@@ -15,7 +15,7 @@
     License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-    define( 'BW', '1.7.12' );
+    define( 'BW', '1.7.13' );
     require_once dirname( __FILE__ ) . '/class-birthdays-widget.php';
     require_once dirname( __FILE__ ) . '/class-birthdays-widget-installer.php';
     require_once dirname( __FILE__ ) . '/class-birthdays-widget-settings.php';  
@@ -215,7 +215,7 @@
                 $value = $tmp_date->format( 'Y-m-d' );
             }
             if ( $wpdb->query( $wpdb->prepare( $insert_query, $birth_user, $value ) ) != 1 )
-                echo '<div id="message" class="error"><p>Query error</p></div>';
+                echo '<div id="message" class="error"><p>' . __( 'Query error', 'birthdays-widget' ) . '</p></div>';
             $birth_id = $wpdb->insert_id;
             update_user_meta( $user_id, 'birthday_id', $birth_id, '' );
         } else {
@@ -226,7 +226,7 @@
                 $value = $tmp_date->format( 'Y-m-d' );
             }
             if ( $wpdb->query( $wpdb->prepare( $update_query, $value, $birth_user, $_POST[ 'birthday_id' ] ) ) != 1 ) {
-                echo '<div id="message" class="error"><p>Query error</p></div>';
+                echo '<div id="message" class="error"><p>' . __( 'Query error', 'birthdays-widget' ) . '</p></div>';
             }
         }
     }
@@ -239,7 +239,7 @@
         $user_birthday_id = get_user_meta( $user_id, 'birthday_id' );
         $delete_query = "DELETE FROM $table_name WHERE id = %d;";
         if ( $wpdb->query( $wpdb->prepare( $delete_query, $user_birthday_id ) ) != 1 )
-            echo '<div id="message" class="error"><p>Query error</p></div>';
+            echo '<div id="message" class="error"><p>' . __( 'Query error', 'birthdays-widget' ) . '</p></div>';
     }
 
     // Feature: Shortcode for birthdays in pages/posts
@@ -318,8 +318,8 @@
     }
     add_action( 'plugins_loaded', 'update_birthdays_widget' );
 
-    function cmp($a, $b) {
-        return strcasecmp($a->name, $b->name);
+    function cmp( $a, $b ) {
+        return strcasecmp( $a->name, $b->name );
     }
 
     function wp_date_to_moment( $format, $type ) {

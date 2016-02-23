@@ -472,7 +472,7 @@
                             <th id="birthday_date_format"><?php _e( 'Expected Date Format', 'birthdays-widget' ); ?></th>
                             <td>
                                 <fieldset><legend class="screen-reader-text"><span><?php _e( 'Expected Date Format', 'birthdays-widget' ); ?></span></legend>
-                            <?php
+                                <?php
                                 $plugin_date = $birthdays_settings[ 'date_format' ];
                                 $date_formats = array_unique( apply_filters( 'date_formats', array( __( 'F j, Y' ), 'Y-m-d', 'm/d/Y', 'd/m/Y' ) ) );
                                 $custom = true;
@@ -490,7 +490,7 @@
                                 echo '<label for="birthdays_date_format" class="screen-reader-text">' . __( 'Custom date format:' ) . '</label>'
                                     .'<input type="text" name="birthdays_date_format" id="date_format_custom" value="' . esc_attr( $plugin_date ) . '" class="admin-small-text" />'
                                     .'<span class="screen-reader-text">' . __( 'example:' ) . ' </span><span class="example"> ' . date_i18n( $plugin_date ) . "</span> <span class='spinner'></span>\n";
-                            ?>
+                                ?>
                                 </fieldset>
                             </td>
                         </tr>
@@ -963,7 +963,7 @@
                     if ( $wpdb->query( $wpdb->prepare( $delete_query, $_GET[ 'id' ] ) ) == 1 )
                         echo '<div id="message" class="updated"><p>'. __( 'The record was deleted!', 'birthdays-widget' ) .'</p></div>';
                     else
-                        echo '<div id="message" class="error"><p>Query error</p></div>';
+                        echo '<div id="message" class="error"><p>' . __( 'Query error', 'birthdays-widget' ) . '</p></div>';
                 } elseif ( $_GET[ 'action' ] == "edit" ) {
                     if ( isset( $_GET[ 'do' ] ) && $_GET[ 'do' ] == "save" && isset( $_POST[ 'birthdays_edit' ] ) ) {
                         //update the record
@@ -1018,7 +1018,7 @@
                             if ( $tmp_date ) {
                                 $result->date = $tmp_date->getTimestamp();
                             } else {
-                                $plugin_errors->edit = "Faulty date in non WP User, expected format Y-m-d given " . $result->date;
+                                $plugin_errors->edit = __( 'Faulty date in non WP User, expected format Y-m-d given', 'birthdays-widge' ) . $result->date;
                             }
                         }
                     }
@@ -1202,7 +1202,7 @@
                                     if ( $tmp_date ) {
                                         $result->date = $tmp_date->getTimestamp();
                                     } elseif ( $tmp_date2 == 'intl' ) {
-                                        $plugin_errors->library[] = 'Internationalization Functions needed, please install PHP\'s extension';
+                                        $plugin_errors->library[] = __( 'Internationalization Functions needed, please install PHP\'s extension',  'birthdays-widget' );
                                         $date = NULL;
                                     } elseif ( $tmp_date2 ) {
                                         $result->date = $tmp_date2;
@@ -1215,7 +1215,7 @@
                                             $result->date = $tmp_date->getTimestamp();
                                         } else {
                                             $result->date = NULL;
-                                            $plugin_errors->edit = 'Something went wrong';
+                                            $plugin_errors->edit = __( 'Something went wrong. Please contact the developer', 'birthdays-widget' );
                                         }
                                     } else {
                                         $result->date = NULL;
