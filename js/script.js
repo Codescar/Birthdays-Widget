@@ -9,6 +9,7 @@ jQuery( document ).ready( function() {
         jQuery( '#birthday_date' ).datepicker( {
             changeMonth: true,
             changeYear: true,
+			yearRange: "-90:+0",
             maxDate: "+0D",
             "dateFormat" : jQuery( '#birthday_date' ).data( 'date-format' )
         } );

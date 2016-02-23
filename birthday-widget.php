@@ -390,7 +390,7 @@
     
     register_activation_hook( __FILE__, 'my_activation_func' ); 
     function my_activation_func() {
-        file_put_contents(__DIR__.'/my_loggg.txt', ob_get_contents());
+        file_put_contents( __DIR__.'/debug.txt', ob_get_contents() );
     }
     /* 
     // Scheduled Action Hook

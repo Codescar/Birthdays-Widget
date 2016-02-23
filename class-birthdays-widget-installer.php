@@ -69,8 +69,9 @@
                 $birthdays_settings = maybe_serialize( $birthdays_settings );
                 update_option( 'birthdays_settings', $birthdays_settings );
             }
+            $birthdays_settings = maybe_unserialize( $birthdays_settings );
             foreach( $birthdays_settings[ 'roles' ] as $role ) {
-                $tmp = get_role( $role[ 0 ] );
+                $tmp = get_role( $role );
                 $tmp->add_cap( 'birthdays_list' ); 
             }
             return;
