@@ -219,7 +219,11 @@ class Birthdays_Widget extends WP_Widget {
                         } else {
                             $flag = true;
                         }
-                        $html .= $row->name;
+                        if ( isset( $row->link ) ) {
+                            $html .= $row->link;
+                        } else {
+                            $html .= $row->name;
+                        }
                         $age = date( "Y" ) - date( "Y", $row->date );
                         $tmp_class = "";
                         if ( $birthdays_settings[ 'user_image_enabled' ] ) {
@@ -238,10 +242,19 @@ class Birthdays_Widget extends WP_Widget {
                         foreach ( $filtered as $row ) {
                             $html .= "<li class=\"birthday_name\">";
                             if ( $birthdays_settings[ 'user_image_enabled' ] ) {
-                                $html .= "<img style=\"width:{$birthdays_settings[ 'list_image_width' ]}\" 
+                                $tmp = "<img style=\"width:{$birthdays_settings[ 'list_image_width' ]}\" 
                                     src=\"{$row->image}\" class=\"birthday_list_image\" />";
+                                if ( isset( $row->link ) ) {
+                                    $html .= '<a href="' . $row->url . '" >' . $tmp . '</a>';
+                                } else {
+                                    $html .= $tmp;
+                                }
                             }
-                            $html .= "{$row->name}";
+                            if ( isset( $row->link ) ) {
+                                $html .= $row->link;
+                            } else {
+                                $html .= $row->name;
+                            }
                             if( $birthdays_settings[ 'user_verbiage' ] ) {
                                 $age = date( "Y" ) - date( "Y", $row->date );
                                 $html .= '<span class="birthday_age"> ' . $age . ' ' . $birthdays_settings[ 'user_verbiage_text' ] . '</span>';
@@ -306,9 +319,19 @@ class Birthdays_Widget extends WP_Widget {
                                     $comma = false;
                                     foreach ( $day as $user ) {
                                         if ( $birthdays_settings[ 'user_image_enabled' ] ) {
-                                            $html .= '<img src="' . $user->image . '" width="150" />';
+                                            $tmp = '<img src="' . $user->image . '" width="150" />';
+                                            if( isset( $user->link ) ) {
+                                                $html .= '<a href="' . $user->url . '" >' . $tmp . '</a>';
+                                            } else {
+                                                $html .= $tmp;
+                                            }
                                         }
-                                        $html .= '<div class="birthday_center birthday_name">' . $user->name;
+                                        $html .= '<div class="birthday_center birthday_name';
+                                        if( isset( $user->link ) ) {
+                                            $html .= ' birthday_name_link">' . $user->link;
+                                        } else {
+                                            $html .= '">' . $user->name;
+                                        }
                                         if( $birthdays_settings[ 'user_verbiage' ] ) {
                                             $age = date( "Y" ) - date( "Y", $user->date );
                                             $html .= '<span class="birthday_age"> ' . $age . ' ' . $birthdays_settings[ 'user_verbiage_text' ] . '</span>';
@@ -461,7 +484,11 @@ class Birthdays_Widget extends WP_Widget {
                                 } else {
                                     $flag = true;
                                 }
-                                $html .= $row->name;
+                                if ( isset( $row->link ) ) {
+                                    $html .= $row->link;
+                                } else {
+                                    $html .= $row->name;
+                                }
                                 $age = date( "Y" ) - date( "Y", $row->date );
                                 if ( $birthdays_settings[ 'user_image_enabled' ] ) {
                                     $html .= '<a href="' . $row->image . '" target="_blank" class="user_image_enabled" ';

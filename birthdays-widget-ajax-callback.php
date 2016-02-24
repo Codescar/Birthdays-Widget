@@ -56,7 +56,8 @@ function birthdays_widget_check_for_birthdays( $all = false, $admin_table = fals
                 } else {
                     $plugin_errors->users[] = __( 'WordPress User',  'birthdays-widget' ) . " " . $user->user_login . " (ID: ". $user->id . ") " . __( 'has wrong birthday date in BuddyPress',  'birthdays-widget' ) . ".<br />"
                     . __( ' Expected format:',  'birthdays-widget' ) . " " . $date_format . " (" .  __( 'something like',  'birthdays-widget' ) . " "
-                    . $example . "), " . __( 'but',  'birthdays-widget' ) . " \"" . $date . "\" " . __( 'given',  'birthdays-widget' ) . ".";
+                    . $example . "), " . __( 'but',  'birthdays-widget' ) . " \"" . $date . "\" " . __( 'given',  'birthdays-widget' ) . "."
+                    . __( 'Please change the plugin\'s option "Expected Date Format"', 'birthdays-widget' ) . ".";
                     $date = NULL;
                 }
             } else {
@@ -65,16 +66,12 @@ function birthdays_widget_check_for_birthdays( $all = false, $admin_table = fals
                     $tmp_date2 = get_international_date( $user->{$birthday_date_meta_field} );
                     if ( $tmp_date ) {
                         $date = $tmp_date->getTimestamp();
-                    } elseif ( $tmp_date2 == 'intl' ) {
-                        $plugin_errors->int_library = __( 'Internationalization Functions needed, please install PHP\'s extension',  'birthdays-widget' );
-                        $date = NULL;
-                    } elseif ( $tmp_date2 ) {
-                        $date = $tmp_date2;
                     } else {
                         $date = NULL;
                         $plugin_errors->users[] = __( 'WordPress User',  'birthdays-widget' ) . " " . $user->user_login . " (ID: ". $user->id . ") " . __( 'has wrong birthday date metafield',  'birthdays-widget' ) . ".<br />"
                         . __( ' Expected format:',  'birthdays-widget' ) . " " . $date_format . " (" . __( 'something like',  'birthdays-widget' ) . " "
-                        . $example . "), " . __( 'but',  'birthdays-widget' ) . " \"" . $user->{$birthday_date_meta_field} . "\" " . __( 'given',  'birthdays-widget' ) . ".";
+                        . $example . "), " . __( 'but',  'birthdays-widget' ) . " \"" . $user->{$birthday_date_meta_field} . "\" " . __( 'given',  'birthdays-widget' ) . ". "
+                       . __( 'Please change the plugin\'s option "Expected Date Format"', 'birthdays-widget' ) . ".";
                     }
                 } else {
                     $date = NULL;
@@ -111,6 +108,19 @@ function birthdays_widget_check_for_birthdays( $all = false, $admin_table = fals
                             $meta_key = $birthdays_settings[ 'photo_meta_field' ];
                             $tmp_user->image = $user->{$meta_key};
                         }
+                    }
+                    if ( $birthdays_settings[ 'user_profile_link' ] ) {
+                        if ( function_exists( 'bp_core_get_userlink' ) ) {
+                            $tmp_user->link = bp_core_get_userlink( $tmp_user->wp_user );
+                        } else if ( function_exists( 'um_fetch_user' ) ) {
+                            um_fetch_user( $tmp_user->wp_user );
+                            $tmp_user->link = '<a href="' . um_user_profile_url() . '" title="' . $tmp_user->name . '" >' . $tmp_user->name . '</a>';
+                            um_reset_user();
+                        }
+                        preg_match_all('!https?://\S+!', $tmp_user->link, $matches);
+                        $url = $matches[0];
+                        $url = $url[0];
+                        $tmp_user->url = $url;
                     }
                     array_push( $results, $tmp_user );
                 }

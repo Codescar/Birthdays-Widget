@@ -4,7 +4,7 @@
     Plugin URI: https://wordpress.org/plugins/birthdays-widget/
     Description: Birthdays widget plugin produces a widget which displays a customizable happy birthday image and wish to your clients/users.
     Author: lion2486, Sudavar
-    Version: 1.7.13
+    Version: 1.7.14
     Author URI: http://www.codescar.eu 
     Contributors: lion2486, Sudavar
     Tags: widget, birthdays, custom birthday list, WordPress User birthday, birthday calendar, BuddyPress birthday, users birthday, all years birthdays, upcoming birthdays
@@ -15,7 +15,7 @@
     License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-    define( 'BW', '1.7.13' );
+    define( 'BW', '1.7.14' );
     require_once dirname( __FILE__ ) . '/class-birthdays-widget.php';
     require_once dirname( __FILE__ ) . '/class-birthdays-widget-installer.php';
     require_once dirname( __FILE__ ) . '/class-birthdays-widget-settings.php';  
@@ -37,7 +37,6 @@
     // register our scripts
     function birthdays_extra_files() {
         wp_register_script( 'birthdays-script', plugins_url( 'js/script.js', __FILE__ ), array( 'jquery' ), BW, true );
-        wp_register_script( 'birthdays-cal', plugins_url( 'js/cal.js', __FILE__ ), array( 'jquery' ), BW );
         wp_register_script( 'birthdays-calendar-js', plugins_url( 'js/bic_calendar.min.js', __FILE__ ), array( 'jquery' ), BW );
         wp_register_script( 'birthdays-bootstrap-js', plugins_url( 'js/bootstrap.min.js', __FILE__ ), array( 'jquery' ), BW );
         wp_register_script( 'datatables', plugins_url( 'js/jquery.dataTables.min.js', __FILE__ ), array( 'jquery' ), BW );
@@ -371,6 +370,7 @@
     }
 
     function get_international_date( $date ) {
+        //Must remain WordPress date_format option to get the correct date from BuddyPress
         $format = wp_date_to_moment( get_option( 'date_format' ), "international_date" );
         if ( !class_exists( "IntlDateFormatter" ) ) {
             return 'intl';

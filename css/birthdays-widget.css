@@ -22,19 +22,25 @@
     color: #BE1E2D;
 }
 
-.popover-content > img {
-    width: 80%;
-    margin: 0 auto;
+.popover-content {
+    max-width: 192px;
+}
+
+.popover-content img {
+    width: 90%;
+    margin: 2% auto 0 auto;
+    border-radius: 50%;
 }
 
 .ui-tooltip-content > img {
-    width: 80%;
+    width: 90%;
     margin: 0 auto;
+    border-radius: 50%;
 }
 
 .birthday_element {
     display: inline-block;
-    cursor: pointer;
+    cursor: default;
 }
 
 .birthday_name {
@@ -95,6 +101,7 @@ img.birthday_list_image {
     float: none;
     display: inline-block;
     vertical-align: middle;
+    border-radius: 50%;
 }
 
 ul.birthday_list > li {
@@ -118,7 +125,7 @@ ul.birthday_list > li {
 }
 
 .birthday-list-tooltip{
-    max-width: 210px;
+    max-width: 180px;
     text-align: center;
     padding: 10px 10px 5px 10px;
 	background-color: white;
@@ -150,4 +157,24 @@ ul.birthday_list > li {
 
 .admin-small-text{
     width: 70px;
+}
+
+.manual_popover {
+    position: absolute;
+    top: 0px;
+    right: 5%;
+    font-size: 20px;
+    color: #6D6F71;
+    cursor: pointer;
+}
+
+.birthday_name_link > a {
+    display: inline-block !important;
+    color: #BE1E2D !important;
+    width: auto !important;
+    font-weight: bold;
+}
+
+.ui-widget-content {
+    border: 1px solid #CECECE !important;
 }

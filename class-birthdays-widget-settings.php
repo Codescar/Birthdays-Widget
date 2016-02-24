@@ -221,6 +221,11 @@
                     } else {
                         $birthdays_settings[ 'image_enabled' ] = 0;
                     }
+                    if ( isset( $_POST[ 'birthdays_user_profile_link' ] ) && !empty( $_POST[ 'birthdays_user_profile_link' ] ) ) {
+                        $birthdays_settings[ 'user_profile_link' ] = 1;
+                    } else {
+                        $birthdays_settings[ 'user_profile_link' ] = 0;
+                    }
                     if ( isset( $_POST[ 'birthdays_upcoming_year' ] ) && !empty( $_POST[ 'birthdays_upcoming_year' ] ) ) {
                         $birthdays_settings[ 'upcoming_year' ] = 1;
                     } else {
@@ -525,65 +530,16 @@
                             </td>
                         </tr>
                         <tr>
-                            <th><?php _e( 'Gravatar\'s profile image', 'birthdays-widget' ); ?></th>
+                            <th><?php _e( 'Users Name link to profile', 'birthdays-widget' ); ?></th>
                             <td>
                                 <fieldset>
-                                    <legend class="screen-reader-text"><span><?php _e( 'Gravatar\'s profile image', 'birthdays-widget' ); ?></span></legend>
-                                    <label for="wp_user_gravatar">
-                                        <select name="wp_user_gravatar">
-                                            <option value="1" <?php echo ( $birthdays_settings[ 'wp_user_gravatar' ] == 1 ) ? "selected=\"selected\"" : ''; ?> ><?php _e( 'Enabled' , 'birthdays-widget' ); ?></option>
-                                            <option value="0" <?php echo ( $birthdays_settings[ 'wp_user_gravatar' ] == 0 ) ? "selected=\"selected\"" : ''; ?> ><?php _e( 'Disabled' , 'birthdays-widget' ); ?></option>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Link Users name to profile page', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="birthdays_user_profile_link">
+                                        <select name="birthdays_user_profile_link" id="birthdays_user_profile_link">
+                                            <option value='1' <?php if ( $birthdays_settings[ 'user_profile_link' ] == 1 ) echo "selected='selected'"; ?> ><?php _e( 'Yes' , 'birthdays-widget' ); ?></option>
+                                            <option value='0' <?php if ( $birthdays_settings[ 'user_profile_link' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No' , 'birthdays-widget' ); ?></option>
                                         </select>
-                                        <br /><span class="description">
-                                            <?php _e( 'Regarding WordPress Users Image: If both Gravatar and meta key are enabled, Gravatar will prevail.<br />
-                                            If Gravatar and Meta value are disabled and WordPress User is saved in our table, then the image defined in List of Birthdays will be displayed.', 'birthdays-widget' ); ?>
-                                        </span>
-                                    </label>
-                                </fieldset>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?php _e( 'Image from meta value', 'birthdays-widget' ); ?></th>
-                            <td>
-                                <fieldset>
-                                    <legend class="screen-reader-text"><span><?php _e( 'Image from meta value', 'birthdays-widget' ); ?></span></legend>
-                                    <label for="birthdays_photo_meta_field_enabled">
-                                        <select name="birthdays_photo_meta_field_enabled">
-                                            <option value="1" <?php echo ( $birthdays_settings[ 'photo_meta_field_enabled' ] == 1 ) ? "selected=\"selected\"" : ''; ?> ><?php _e( 'Enabled' , 'birthdays-widget' ); ?></option>
-                                            <option value="0" <?php echo ( $birthdays_settings[ 'photo_meta_field_enabled' ] == 0 ) ? "selected=\"selected\"" : ''; ?> ><?php _e( 'Disabled' , 'birthdays-widget' ); ?></option>
-                                        </select><br /><span class="description">
-                                            <?php _e( 'If enabled, the meta you select must be present in every WP User you set a birthday, otherwise default image will be displayed.', 'birthdays-widget' ); ?>
-                                        </span>
-                                    </label>
-                                </fieldset>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?php _e( 'Meta value as image', 'birthdays-widget' ); ?></th>
-                            <td>
-                                <fieldset>
-                                    <legend class="screen-reader-text"><span><?php _e( 'Meta value as image', 'birthdays-widget' ); ?></span></legend>
-                                    <label for="birthdays_photo_meta_field">
-                                        <select name="birthdays_photo_meta_field">
-                                            <?php $meta_keys = self::birthday_get_filtered_meta();
-                                                foreach ( $meta_keys as $key ): ?>
-                                                    <?php if ( preg_match( '/bpid/', $key ) ):
-                                                        $buddy = explode( '-', $key );
-                                                        $value = $prefix . preg_replace( '/[^0-9.]+/', '', $buddy[0] );
-                                                        $name = $buddy[1]; ?>
-                                                        <option value="<?php echo $value; ?>" 
-                                                            <?php echo ( $prefix . $birthdays_settings[ 'photo_meta_field' ] == $value) ? "selected=\"selected\"" : ''; ?> ><?php echo $name . " (BuddyPress)"; ?>
-                                                        </option>
-                                                    <?php else: ?>
-                                                        <option value="<?php echo $key; ?>" <?php echo ( $birthdays_settings[ 'photo_meta_field' ] == $key ) ? "selected=\"selected\"" : ''; ?> >
-                                                            <?php echo $key; ?></option>
-                                                    <?php endif; ?>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <br /><?php _e( 'Select which WordPress User\'s meta value you like to be shown as User image in widget', 'birthdays-widget' ); ?>
-                                        <br /><span class="description">
-                                            <?php _e( 'The content of the metafield can be either a URL pointing to the image, or the image\'s ID in WordPress Media Manager.', 'birthdays-widget' ); ?>
-                                        </span>
+                                        <br /><?php _e( 'Name of BuddyPress or Ultimate Members Users will be link to user\'s profile page', 'birthdays-widget' ); ?>
                                     </label>
                                 </fieldset>
                             </td>
@@ -671,6 +627,70 @@
                                         <input name="birthdays_widget_image_width" type="text" size="3" value="<?php echo $birthdays_settings[ 'image_width' ]; ?>" />
                                         <br /><?php _e( 'Images in list template', 'birthdays-widget' ); ?>: 
                                         <input name="birthdays_list_image_width" type="text" size="3" value="<?php echo $birthdays_settings[ 'list_image_width' ]; ?>" />
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Gravatar\'s profile image', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Gravatar\'s profile image', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="wp_user_gravatar">
+                                        <select name="wp_user_gravatar">
+                                            <option value="1" <?php echo ( $birthdays_settings[ 'wp_user_gravatar' ] == 1 ) ? "selected=\"selected\"" : ''; ?> ><?php _e( 'Enabled' , 'birthdays-widget' ); ?></option>
+                                            <option value="0" <?php echo ( $birthdays_settings[ 'wp_user_gravatar' ] == 0 ) ? "selected=\"selected\"" : ''; ?> ><?php _e( 'Disabled' , 'birthdays-widget' ); ?></option>
+                                        </select>
+                                        <br /><span class="description">
+                                            <?php _e( 'Regarding WordPress Users Image: If both Gravatar and meta key are enabled, Gravatar will prevail.<br />
+                                            If Gravatar and Meta value are disabled and WordPress User is saved in our table, then the image defined in List of Birthdays will be displayed.', 'birthdays-widget' ); ?>
+                                        </span>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Image from meta value', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Image from meta value', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="birthdays_photo_meta_field_enabled">
+                                        <select name="birthdays_photo_meta_field_enabled">
+                                            <option value="1" <?php echo ( $birthdays_settings[ 'photo_meta_field_enabled' ] == 1 ) ? "selected=\"selected\"" : ''; ?> ><?php _e( 'Enabled' , 'birthdays-widget' ); ?></option>
+                                            <option value="0" <?php echo ( $birthdays_settings[ 'photo_meta_field_enabled' ] == 0 ) ? "selected=\"selected\"" : ''; ?> ><?php _e( 'Disabled' , 'birthdays-widget' ); ?></option>
+                                        </select><br /><span class="description">
+                                            <?php _e( 'If enabled, the meta you select must be present in every WP User you set a birthday, otherwise default image will be displayed.', 'birthdays-widget' ); ?>
+                                        </span>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Meta value as image', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Meta value as image', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="birthdays_photo_meta_field">
+                                        <select name="birthdays_photo_meta_field">
+                                            <?php $meta_keys = self::birthday_get_filtered_meta();
+                                                foreach ( $meta_keys as $key ): ?>
+                                                    <?php if ( preg_match( '/bpid/', $key ) ):
+                                                        $buddy = explode( '-', $key );
+                                                        $value = $prefix . preg_replace( '/[^0-9.]+/', '', $buddy[0] );
+                                                        $name = $buddy[1]; ?>
+                                                        <option value="<?php echo $value; ?>" 
+                                                            <?php echo ( $prefix . $birthdays_settings[ 'photo_meta_field' ] == $value) ? "selected=\"selected\"" : ''; ?> ><?php echo $name . " (BuddyPress)"; ?>
+                                                        </option>
+                                                    <?php else: ?>
+                                                        <option value="<?php echo $key; ?>" <?php echo ( $birthdays_settings[ 'photo_meta_field' ] == $key ) ? "selected=\"selected\"" : ''; ?> >
+                                                            <?php echo $key; ?></option>
+                                                    <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <br /><?php _e( 'Select which WordPress User\'s meta value you like to be shown as User image in widget', 'birthdays-widget' ); ?>
+                                        <br /><span class="description">
+                                            <?php _e( 'The content of the metafield can be either a URL pointing to the image, or the image\'s ID in WordPress Media Manager.', 'birthdays-widget' ); ?>
+                                        </span>
                                     </label>
                                 </fieldset>
                             </td>

@@ -194,6 +194,9 @@ jQuery( document ).ready( function() {
             items: ".birthday_element",
             content: function() {
                 var element = jQuery( 'a', this );
+                if ( element.length == 2 ) {
+                    element = element.next();
+                }
                 if ( element.length >= 1 ) {
                     if ( element.hasClass( 'user_image_enabled' ) ) {
                         var str = '<img src="'+element.attr( 'href' )+'" alt="User\'s Image" /><br />';

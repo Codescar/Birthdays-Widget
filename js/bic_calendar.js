@@ -65,15 +65,15 @@ jQuery.fn.bic_calendar = function(options) {
             popoverOptions = opts.popoverOptions;
         else
             popoverOptions = {
-                placement: 'bottom', html: true, trigger: 'hover',
-                template: '<div class="popover" role="tooltip"><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+                placement: 'bottom', html: true, trigger: 'click',
+                template: '<div class="popover" role="tooltip"><h3 class="popover-title"></h3><div class="manual_popover">x</div><div class="popover-content"></div></div>'
             };
 
         var tooltipOptions;
         if (typeof opts.tooltipOptions != "undefined")
             tooltipOptions = opts.tooltipOptions;
         else
-            tooltipOptions = {placement: 'bottom', trigger: 'hover'};
+            tooltipOptions = {placement: 'bottom', trigger: 'focus'};
 
         var reqAjax;
         if (typeof opts.reqAjax != "undefined")
@@ -552,3 +552,12 @@ jQuery.fn.bic_calendar = function(options) {
     });
     return this;
 };
+
+jQuery( document ).ready( function() {
+    if ( jQuery( '#bic_calendar' ).length >= 1 ) {
+        jQuery( '#bic_calendar' ).delegate( '.manual_popover', 'click', function(){
+            var elem = jQuery( this ).parents( 'td' );
+            jQuery( 'a', elem ).popover( 'toggle' ); 
+        } );
+    }
+} );
