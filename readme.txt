@@ -3,14 +3,14 @@ Plugin Name: Birthdays Widget
 Plugin URI: http://wordpress.org/plugins/birthdays-widget/
 Description: Birthdays widget plugin produces a widget which displays a customizable happy birthday image and wish to your clients/users.
 Author: lion2486, Sudavar
-Version: 1.7.14
+Version: 1.7.15
 Author URI: http://www.codescar.eu 
 Contributors: lion2486, Sudavar
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=yurissudavar%40gmail%2ecom&lc=GR&no_note=0&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHostedGuest
 Tags: widget, birthdays, custom birthday list, WordPress User birthday, birthday calendar, BuddyPress birthday, users birthday, all years birthdays, upcoming birthdays
 Requires at least: 3.5
 Tested up to: 4.4.2
-Stable tag: 1.7.14
+Stable tag: 1.7.15
 Text Domain: birthdays-widget
 Domain Path: /languages
 License: GPLv2
@@ -64,6 +64,10 @@ This section describes how to install the plugin and get it working.
 6. Widget Preview in List Template, shows a list of current birthdays with users' image and verbiage
 
 == Changelog ==
+
+= 1.7.15 =
+* WordPress User Registration error fixed, thanks to [digitalgaming](https://wordpress.org/support/profile/digitalgaming) for pointing out
+* jQuery UI Smoothness called correctly now over "https", thanks to [knightwave](https://wordpress.org/support/profile/knightwave) for pointing out
 
 = 1.7.14 =
 * Link to User's Profile implemented, thanks to the suggestion of [im_a_marvel](https://wordpress.org/support/profile/im_a_marvel) & [per4mance](https://wordpress.org/support/profile/per4mance)

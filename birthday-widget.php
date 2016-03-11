@@ -4,7 +4,7 @@
     Plugin URI: https://wordpress.org/plugins/birthdays-widget/
     Description: Birthdays widget plugin produces a widget which displays a customizable happy birthday image and wish to your clients/users.
     Author: lion2486, Sudavar
-    Version: 1.7.14
+    Version: 1.7.15
     Author URI: http://www.codescar.eu 
     Contributors: lion2486, Sudavar
     Tags: widget, birthdays, custom birthday list, WordPress User birthday, birthday calendar, BuddyPress birthday, users birthday, all years birthdays, upcoming birthdays
@@ -15,7 +15,7 @@
     License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-    define( 'BW', '1.7.14' );
+    define( 'BW', '1.7.15' );
     require_once dirname( __FILE__ ) . '/class-birthdays-widget.php';
     require_once dirname( __FILE__ ) . '/class-birthdays-widget-installer.php';
     require_once dirname( __FILE__ ) . '/class-birthdays-widget-settings.php';  
@@ -49,7 +49,7 @@
             wp_deregister_script( $handle );
         }
         wp_register_script( 'datatables', plugins_url( 'js/jquery.dataTables.min.js', __FILE__ ), array( 'jquery' ), 'BW' );
-        wp_register_style( 'jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css', array(), BW );
+        wp_register_style( 'jquery-style', '//ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css', array(), BW );
         wp_register_style( 'birthdays-calendar-css', plugins_url( 'css/bic_calendar.css', __FILE__ ), array(), BW );
         wp_register_style( 'birthdays-bootstrap-css', plugins_url( 'css/bootstrap.min.css', __FILE__ ), array(), BW );
         wp_register_style( 'birthdays-table-css', plugins_url( 'css/jquery.dataTables.min.css', __FILE__ ), array(), BW );
@@ -89,12 +89,17 @@
     if ( $birthdays_settings[ 'register_form' ] == TRUE ) {
         add_action( 'register_form', 'birthdays_widget_register_form' );
         add_filter( 'registration_errors', 'birthdays_widget_registration_errors', 10, 3 );
+        add_action( 'user_register', 'birthdays_widget_user_register', 10, 1 );
     }
     //1. Add a new form element...
     function birthdays_widget_register_form (){
         wp_enqueue_script( 'jquery-ui-datepicker' );
         wp_enqueue_script( 'birthdays-script' );
         wp_enqueue_style( 'jquery-style' );
+
+        /* $birthdays_settings = get_option( 'birthdays_settings' );
+        $birthdays_settings = maybe_unserialize( $birthdays_settings );
+        var_dump( $birthdays_settings ); */
 
         $date_format_wp = get_option( 'date_format' );
         $date_format = wp_date_to_moment( $date_format_wp, 'datepicker' );
@@ -103,7 +108,7 @@
         <p>
             <label for="first_name"><?php _e('First Name','birthdays-widget') ?><br />
                 <input type="text" name="first_name" id="first_name" class="input" 
-                    value="<?php echo esc_attr(stripslashes($first_name)); ?>" /></label>
+                    value="<?php echo esc_attr( stripslashes($first_name) ); ?>" /></label>
             <label for="birthday_date"><?php _e( 'User Birthday', 'birthdays-widget' ); ?></label>
                 <input  type="text" id="birthday_date" name="birthday_date" 
                     value="<?php if ( $date != '' ) echo date_i18n( $date_format_wp, strtotime( $date ) ); ?>"
@@ -112,16 +117,58 @@
     }
 
     //2. Add validation. No need yet
-    function birthdays_widget_registration_errors ($errors, $sanitized_user_login, $user_email) {
+    function birthdays_widget_registration_errors ( $errors, $sanitized_user_login, $user_email ) {
         return $errors;
     }
 
     //3. Finally, save our extra registration user meta.
-    function birthdays_widget_user_register ($user_id) {
+    function birthdays_widget_user_register ( $user_id ) {
+        global $wpdb;
+        $wp_date_format = get_option( 'date_format' );
+        $birthdays_settings = get_option( 'birthdays_settings' );
+        $birthdays_settings = maybe_unserialize( $birthdays_settings );
+        $plugin_date_format = $birthdays_settings[ 'date_format' ];
+
         if ( isset( $_POST['first_name'] ) )
             update_user_meta( $user_id, 'first_name', $_POST['first_name'] );
-        if ( isset( $_POST['birthday_date'] ) )
-            update_user_meta( $user_id, 'birthday', $_POST['birthday_date'] );
+
+        if ( isset( $_POST[ 'birthday_date' ] ) && empty( $_POST[ 'birthday_date' ] ) )
+            return;
+
+        $value = $_POST[ 'birthday_date' ];
+
+        if ( $birthdays_settings[ 'date_from_profile' ] ) {
+            if ( function_exists( 'bp_is_active' ) && bp_is_active('activity') ) {
+                return;
+            }
+            //Shall now save it in the profile's correct metafield
+            $tmp_date = date_create_from_format( $wp_date_format, $value );
+            var_dump( $tmp_date, $plugin_date_format, $value );
+            if ( $tmp_date ) {
+                $value = $tmp_date->getTimestamp();
+            }
+            //BuddyPress has it's own registration form
+            $birthday_date_meta_field = $birthdays_settings[ 'date_meta_field' ];
+            update_user_meta( $user_id, $birthday_date_meta_field, date( $plugin_date_format , $value ) );
+        } else if ( $birthdays_settings[ 'profile_page' ] ) {
+            //Shall now save it in our database table
+            $birth_user = "cs_birth_widg_" . $user_id;
+            $table_name = $wpdb->prefix . 'birthdays';
+
+            //add the new entry
+            $insert_query = "INSERT INTO $table_name (name, date) VALUES (%s, %s);";
+            $tmp_date = date_create_from_format( $wp_date_format, $value );
+            if ( $tmp_date ) {
+                $value = $tmp_date->format( 'Y-m-d' );
+            }
+            if ( $wpdb->query( $wpdb->prepare( $insert_query, $birth_user, $value ) ) != 1 ) {
+                $error = 'Query error in User Registration. Query: ' . $insert_query;
+                file_put_contents( __DIR__.'/debug.txt', ob_get_contents() );
+                file_put_contents( __DIR__.'/debug.txt', $error );
+            }
+            $birth_id = $wpdb->insert_id;
+            update_user_meta( $user_id, 'birthday_id', $birth_id, '' );
+        }
     }
 
     // Feature: User name and User birthday field in User profile in admin section

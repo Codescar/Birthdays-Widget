@@ -32,7 +32,7 @@ jQuery( document ).ready( function() {
             content: function() {
                 var element = jQuery( 'a', this );
                 if ( element.length >= 1 ) {
-                    return '<img src="'+element.attr( 'href' )+'" alt="User\'s Image" style="width: 200px;" />';
+                    return '<img src="'+element.attr( 'href' )+'" alt="User\'s Image" />';
                 }
             },
             show: {

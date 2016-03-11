@@ -38,7 +38,7 @@ function birthdays_widget_check_for_birthdays( $all = false, $admin_table = fals
         $users = get_users();
         foreach ( $users as $user ) {
             //If the birthday is a BuddyPress field, fetch it with bp_get_profile_field_data
-            if ( $birthdays_settings[ 'date_meta_field_bp' ] ) {
+            if ( $birthdays_settings[ 'date_meta_field_bp' ] && function_exists( 'bp_get_profile_field_data' ) ) {
                 $query = 'field='.ucfirst( $birthdays_settings[ 'date_meta_field' ] ).'&user_id='.$user->id;
                 $date = bp_get_profile_field_data( $query );
                 if( empty( $date ) ) {
