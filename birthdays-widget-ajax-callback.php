@@ -90,6 +90,7 @@ function birthdays_widget_check_for_birthdays( $all = false, $admin_table = fals
                         $meta_key = $birthdays_settings[ 'meta_field' ];
                         $tmp_user->name = $user->{$meta_key};
                     }
+                    $tmp_user->id = $user->id;
                     $tmp_user->email = $user->user_email;
                     if ( $admin_table ) {
                         $tmp_user->date = date_i18n( $date_format, $date );

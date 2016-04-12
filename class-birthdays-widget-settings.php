@@ -89,6 +89,11 @@
                     } else {
                         $birthdays_settings[ 'comma' ] = 0;
                     }
+                    if ( isset( $_POST[ 'birthdays_bdpress_friends' ] ) && $_POST[ 'birthdays_bdpress_friends' ] != '0' ) {
+                        $birthdays_settings[ 'bdpress_friends_only' ] = 1;
+                    } else {
+                        $birthdays_settings[ 'bdpress_friends_only' ] = 0;
+                    }
                     if ( isset( $_POST[ 'birthdays_user_verbiage' ] ) && $_POST[ 'birthdays_user_verbiage' ] != '0' ) {
                         $birthdays_settings[ 'user_verbiage' ] = 1;
                     } else {
@@ -540,6 +545,21 @@
                                             <option value='0' <?php if ( $birthdays_settings[ 'user_profile_link' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No' , 'birthdays-widget' ); ?></option>
                                         </select>
                                         <br /><?php _e( 'Name of BuddyPress or Ultimate Members Users will be link to user\'s profile page', 'birthdays-widget' ); ?>
+                                    </label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Show only BuddyPress Friends', 'birthdays-widget' ); ?></th>
+                            <td>
+                                <fieldset>
+                                    <legend class="screen-reader-text"><span><?php _e( 'Show only BuddyPress Friends', 'birthdays-widget' ); ?></span></legend>
+                                    <label for="birthdays_bdpress_friends">
+                                        <select name="birthdays_bdpress_friends" id="birthdays_bdpress_friends">
+                                            <option value='1' <?php if ( $birthdays_settings[ 'bdpress_friends_only' ] == 1 ) echo "selected='selected'"; ?> ><?php _e( 'Yes' , 'birthdays-widget' ); ?></option>
+                                            <option value='0' <?php if ( $birthdays_settings[ 'bdpress_friends_only' ] == 0 ) echo "selected='selected'"; ?> ><?php _e( 'No' , 'birthdays-widget' ); ?></option>
+                                        </select>
+                                        <br /><?php _e( 'Choose to display only birthdays of friends in BuddyPress', 'birthdays-widget' ); ?>
                                     </label>
                                 </fieldset>
                             </td>

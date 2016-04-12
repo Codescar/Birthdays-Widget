@@ -154,7 +154,23 @@ class Birthdays_Widget extends WP_Widget {
             $prefix = "cs_birth_widg_";
             $filtered = array();
             $year = true;
-			foreach ( $birthdays as $row ) {
+
+            $filtered_first = array();
+            if ( function_exists( 'friends_get_friend_user_ids' ) && $birthdays_settings['bdpress_friends_only'] ) {
+                $friends = friends_get_friend_user_ids( get_current_user_id() );
+                foreach ( $birthdays as $user ) {
+                    //var_dump( $user->id );
+                    //If user not in friend list 
+                    if ( !in_array( $user->id, $friends ) ) {
+                        continue;
+                    }
+                    array_push( $filtered_first, $user );
+                }
+            } else {
+                $filtered_first = $birthdays;
+            }
+            
+			foreach ( $filtered_first as $row ) {
                 //Check if this is record represents a WordPress user
                 $wp_usr = strpos( $row->name, $prefix );
 
@@ -205,6 +221,7 @@ class Birthdays_Widget extends WP_Widget {
                 }
                 array_push( $filtered, $row );
             }
+            //var_dump( $filtered );
             switch ( $instance[ 'template' ] ) {
                 case 0:
                     wp_enqueue_script( 'jquery-ui-tooltip' );
