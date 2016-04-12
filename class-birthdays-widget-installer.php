@@ -71,9 +71,11 @@
                 update_option( 'birthdays_settings', $birthdays_settings );
             }
             $birthdays_settings = maybe_unserialize( $birthdays_settings );
-            foreach( $birthdays_settings[ 'roles' ] as $role ) {
+            foreach( $birthdays_settings[ 'roles' ] as $key => $role ) {
                 $tmp = get_role( $role );
-                $tmp->add_cap( 'birthdays_list' ); 
+                if( $tmp != NULL ) {
+                    $tmp->add_cap( 'birthdays_list' ); 
+                }
             }
             return;
         }
@@ -106,7 +108,7 @@
 
             return Birthdays_Widget_Installer::install();
         }
-        
+
         static function deactivate() {
             if ( ! get_option( 'birthdays_settings' ) ) {
                 $new = array();

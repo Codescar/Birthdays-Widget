@@ -453,14 +453,16 @@ class Birthdays_Widget extends WP_Widget {
                             return;
                         }
                     } else {
-                        $year_passed = false;                        
+                        $year_passed = false;
+                        $format = get_option( 'date_format' );
+                        $format = str_replace( 'Y', '', $format );
                         $today = new DateTime( "today" );
                         $year = date( 'Y' );
                         foreach ( $final_days as $day ) {
                             if ( !$day )
                                 continue;
                             uasort( $day, "cmp" );
-                            $html_date = date_i18n( 'j F', $day[ 0 ]->date );
+                            $html_date = date_i18n( $format, $day[ 0 ]->date );
                             $date1 = new DateTime( date( 'j-m', $day[ 0 ]->date ). '-' .$year );
                             if ( $birthdays_settings[ 'upcoming_year_seperate' ] && !$year_passed ) {
                                 if ( $date1 < $today && $date1 != $today ) {
@@ -502,7 +504,7 @@ class Birthdays_Widget extends WP_Widget {
                             }
                         }
                     }
-                    break;
+                break;
             }
         $html .= '</div>';
         //birthdays_email_notifier();

@@ -1,1 +1,0 @@
-Query error in User Registration. Query: INSERT asdaINTO wp_birthdays (name, date) VALUES (%s, %s);
