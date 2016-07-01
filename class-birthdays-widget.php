@@ -253,6 +253,7 @@ class Birthdays_Widget extends WP_Widget {
                         $html .= '></a></div>';
                     }
                     break;
+                //List Mode
                 case 1:
                     $html .= '<ul class="birthday_list">';
                     uasort( $filtered, "cmp" );
@@ -280,6 +281,7 @@ class Birthdays_Widget extends WP_Widget {
                         }
                     $html .= '</ul>';
                     break;
+                //Calendar Mode
                 case 2:
                     if ( defined( 'CALENDAR' ) ) {
                         $html .= "<span class=\"description\">" . __( 'Only one calendar template is available per page. Please check your widget and shortcode options.', 'birthdays-widget' ) . "</span>";
@@ -379,6 +381,7 @@ class Birthdays_Widget extends WP_Widget {
                     $html .= '</script>';
                     $html .= '<div id="birthday_calendar"></div>';
                     break;
+                //Upcoming Mode
                 case 3:
                     wp_enqueue_script( 'jquery-ui-tooltip' );
                     wp_enqueue_script( 'birthdays-script' );
@@ -480,6 +483,7 @@ class Birthdays_Widget extends WP_Widget {
                                 continue;
                             uasort( $day, "cmp" );
                             $html_date = date_i18n( $format, $day[ 0 ]->date );
+                            $html_date = self::remove_empty( $html_date );
                             $date1 = new DateTime( date( 'j-m', $day[ 0 ]->date ). '-' .$year );
                             if ( $birthdays_settings[ 'upcoming_year_seperate' ] && !$year_passed ) {
                                 if ( $date1 < $today && $date1 != $today ) {
@@ -528,6 +532,19 @@ class Birthdays_Widget extends WP_Widget {
         return $html;
     }
 
+    function remove_empty( $date ) {
+        $empty_value = true;
+        $length = strlen( $date ) - 1;
+        while( $empty_value ) {
+            if( !is_numeric( $date[ $length ] ) ) {
+                $date = substr( $date, 0, -1 );
+                $length--;
+            } else {
+                $empty_value = false;
+            }
+        }
+        return $date;
+    }
     /**
      * Processing widget options on save
      *
